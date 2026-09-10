@@ -701,7 +701,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">ผู้อนุมัติระดับ 1 (จป.วิชาชีพ) <span class="required">*</span></label>
+          <label class="form-label" id="labelApprover1">ผู้อนุมัติระดับ 1 <span id="tagApprover1" style="font-weight: normal; color: #475569;"></span> <span class="required">*</span></label>
           <select id="approver1Select" class="form-control">
             <option value="">-- กำลังโหลดรายชื่อผู้อนุมัติ... --</option>
           </select>
@@ -1279,6 +1279,7 @@
           QUESTIONS: 'FM_' + tag + '_LOCAL_QUESTIONS',
           PROJECTS: 'CENTRAL_SITE_PROJECTS',
           APPROVERS: 'FM_' + tag + '_LOCAL_APPROVERS',
+          APPROVER_TAG: 'FM_' + tag + '_LOCAL_APPROVER_TAG',
           TIME: 'FM_' + tag + '_LOCAL_CACHE_TIME'
         };
       },
@@ -1296,6 +1297,7 @@
           var qRaw = localStorage.getItem(keys.QUESTIONS);
           var pRaw = localStorage.getItem(keys.PROJECTS);
           var aRaw = localStorage.getItem(keys.APPROVERS);
+          var tagRaw = localStorage.getItem(keys.APPROVER_TAG);
           if (!qRaw || !pRaw) return null;
 
           var questions = JSON.parse(qRaw);
@@ -1308,6 +1310,7 @@
             questions: questions,
             projects: projects,
             approvers: Array.isArray(approvers) ? approvers : [],
+            approveTagL1: tagRaw || '',
             timestamp: Number(timeStr)
           };
         } catch (e) {
@@ -1316,7 +1319,7 @@
         }
       },
 
-      setLocalCache_: function(questions, projects, approvers) {
+      setLocalCache_: function(questions, projects, approvers, approveTagL1) {
         try {
           var keys = this.getCacheKeys_();
           if (Array.isArray(questions) && questions.length > 0) {
@@ -1327,6 +1330,9 @@
           }
           if (Array.isArray(approvers) && approvers.length > 0) {
             localStorage.setItem(keys.APPROVERS, JSON.stringify(approvers));
+          }
+          if (approveTagL1) {
+            localStorage.setItem(keys.APPROVER_TAG, String(approveTagL1));
           }
           localStorage.setItem(keys.TIME, String(Date.now()));
         } catch (e) {
@@ -1340,6 +1346,7 @@
           localStorage.removeItem(keys.QUESTIONS);
           localStorage.removeItem(keys.PROJECTS);
           localStorage.removeItem(keys.APPROVERS);
+          localStorage.removeItem(keys.APPROVER_TAG);
           localStorage.removeItem(keys.TIME);
           // เคลียร์คีย์เวอร์ชันเดิม (ถ้ามี)
           localStorage.removeItem('FMSA03_LOCAL_QUESTIONS');
@@ -1402,14 +1409,24 @@
         }
       },
 
+      renderApproverTag_: function(tag) {
+        var tagEl = document.getElementById('tagApprover1');
+        if (tagEl) {
+          tagEl.textContent = tag ? '(' + tag + ')' : '';
+        }
+      },
+
       loadForm: function(transDate, isForceRefresh) {
         var self = this;
         if (!App.currentUser) return;
 
         var cached = !isForceRefresh ? self.getLocalCache_() : null;
 
-        // Fast Path: เรนเดอร์โครงการ, ผู้อนุมัติ และคำถามจาก Local Storage ทันที (< 0.05 วินาที)
+        // Fast Path: เรนเดอร์โครงการ, ผู้อนุมัติ, ป้ายกำกับผู้อนุมัติ และคำถามจาก Local Storage ทันที (< 0.05 วินาที)
         if (cached) {
+          if (cached.approveTagL1) {
+            self.renderApproverTag_(cached.approveTagL1);
+          }
           if (cached.projects && cached.projects.length > 0) {
             self.renderProjectDropdown_(cached.projects);
           }
@@ -1434,9 +1451,13 @@
             if (res && res.success && res.data) {
               self.currentData = res.data;
 
+              if (res.data.approveTagL1) {
+                self.renderApproverTag_(res.data.approveTagL1);
+              }
+
               // บันทึกคำถาม โครงการ และรายชื่อผู้อนุมัติลง Local Cache สำหรับใช้งาน 24 ชั่วโมง
               if (res.data.questions && res.data.projects) {
-                self.setLocalCache_(res.data.questions, res.data.projects, res.data.l1Approvers);
+                self.setLocalCache_(res.data.questions, res.data.projects, res.data.l1Approvers, res.data.approveTagL1);
               }
 
               self.renderForm_(res.data);

@@ -60,6 +60,7 @@ var ChecklistService = (function() {
 
       return {
         screenTag: Config.getScreenTag(),
+        approveTagL1: Config.getApproveTagL1(),
         transDate: targetDate,
         questions: questions,
         projects: projects,
