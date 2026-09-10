@@ -1,6 +1,10 @@
 /**
  * CentralApiService.js - ตัวเชื่อมต่อ MasterCacheAPI และ Access Control Service
  * อ้างอิงเอกสาร: spec-users-profile-api.md (SPEC-IAM-2026-V2.0) และ integration-guide.md
+ * 
+ * หมายเหตุ: ฝั่งแอป Central API มีระบบ Cache (10 นาที) คอยป้องกัน Google Sheets อยู่แล้ว
+ * และฝั่งหน้าจอก็มี LocalStorage จำไว้ 24 ชม. ดังนั้นไฟล์นี้จึงทำหน้าที่เป็น Pure API Connector
+ * ส่งคำขอตรงไป-กลับโดยไม่ต้องเก็บแคชซ้ำซ้อน
  */
 
 var CentralApiService = (function() {
@@ -30,7 +34,7 @@ var CentralApiService = (function() {
     /**
      * ตรวจสอบตัวตนและสิทธิ์เข้าถึงหน้าจอตาม spec-users-profile-api.md หมวด 4.1
      * @param {string} lineUid LINE UID ของผู้ใช้งาน
-     * @param {string} [screen] รหัสหน้าจอ (default: 'SA03')
+     * @param {string} [screen] รหัสหน้าจอ (default: 'SA01')
      * @returns {Object} { ok, authorized, statusCode, message, user }
      */
     verifyAccess: function(lineUid, screen) {
@@ -58,22 +62,13 @@ var CentralApiService = (function() {
             email: 'tester@company.com',
             line_uid: lineUid,
             active: 'Y',
-            screen_tags: ['SA03'],
-            approve_tags: ['จป.วิชาชีพ', 'จป.บริหาร']
+            screen_tags: ['SA01'],
+            approve_tags: ['จป.หัวหน้างาน']
           }
         };
       }
 
       var targetScreen = screen || Config.getScreenTag();
-      var cache = CacheService.getScriptCache();
-      var cacheKey = 'AUTH_VERIFY_' + encodeURIComponent(lineUid) + '_' + encodeURIComponent(targetScreen);
-      var cached = cache.get(cacheKey);
-      if (cached) {
-        try {
-          return JSON.parse(cached);
-        } catch (e) {}
-      }
-
       var payload = {
         action: 'verifyAccess',
         datasetKey: 'users_profile',
@@ -83,13 +78,7 @@ var CentralApiService = (function() {
       };
 
       try {
-        var res = postRequest_(payload);
-        if (res && res.ok) {
-          try {
-            cache.put(cacheKey, JSON.stringify(res), 600); // แคช 10 นาที
-          } catch (ce) {}
-        }
-        return res;
+        return postRequest_(payload);
       } catch (err) {
         Logger.log('[CentralApiService] verifyAccess failed: ' + err);
         return {
@@ -103,22 +92,11 @@ var CentralApiService = (function() {
 
     /**
      * ดึงรายชื่อผู้อนุมัติตาม Tag ตาม spec-users-profile-api.md หมวด 4.2
-     * หน่วงแคชที่ ScriptCache 10 นาที (600 วินาที) ป้องกัน Google Quota / Timeout
-     * @param {string} approveTag เช่น "จป.วิชาชีพ" หรือ "จป.บริหาร"
+     * @param {string} approveTag เช่น "จป.หัวหน้างาน" หรือ "จป.วิชาชีพ"
      * @returns {Array<Object>} รายชื่อผู้อนุมัติ [{ users_id, users_name, line_uid, emp_no, email }]
      */
     getApproveList: function(approveTag) {
       if (!approveTag) return [];
-
-      var cache = CacheService.getScriptCache();
-      var cacheKey = 'APPROVE_LIST_' + encodeURIComponent(approveTag);
-
-      var cached = cache.get(cacheKey);
-      if (cached) {
-        try {
-          return JSON.parse(cached);
-        } catch (e) {}
-      }
 
       var payload = {
         action: 'getApproveList',
@@ -130,10 +108,6 @@ var CentralApiService = (function() {
       try {
         var res = postRequest_(payload);
         if (res && res.ok && Array.isArray(res.data)) {
-          // เก็บใน Cache 10 นาที (600 วินาที) ป้องกัน Google Rate Limit / Timeout
-          try {
-            cache.put(cacheKey, JSON.stringify(res.data), 600);
-          } catch (e) {}
           return res.data;
         }
         return [];
@@ -145,21 +119,11 @@ var CentralApiService = (function() {
 
     /**
      * ดึงรายชื่อโครงการ/สาขา จาก Central Cache (datasetKey: "site")
-     * ตาม integration-guide.md หน่วงแคช 10 นาที (600 วินาที)
+     * ตาม integration-guide.md
      * @returns {Array<string>} รายชื่อโครงการ
      */
     getProjectList: function() {
       var datasetKey = Config.getProjectDatasetKey() || 'site';
-      var cache = CacheService.getScriptCache();
-      var cacheKey = 'PROJECT_LIST_' + datasetKey;
-
-      var cached = cache.get(cacheKey);
-      if (cached) {
-        try {
-          return JSON.parse(cached);
-        } catch (e) {}
-      }
-
       var payload = {
         action: 'getList',
         datasetKey: datasetKey,
@@ -169,7 +133,6 @@ var CentralApiService = (function() {
       try {
         var res = postRequest_(payload);
         if (res && res.ok && Array.isArray(res.data)) {
-          cache.put(cacheKey, JSON.stringify(res.data), 600); // แคช 10 นาที (600 วินาที)
           return res.data;
         }
       } catch (e) {
@@ -189,18 +152,8 @@ var CentralApiService = (function() {
     /**
      * ดึง Map รายชื่อผู้ใช้ตาม LINE UID { [line_uid]: users_name }
      * เพื่อนำชื่อผู้ตรวจไปแสดงผลแทน LINE UID ในหน้าจออนุมัติ
-     * แคชใน ScriptCache 30 นาที (1800 วินาที) ทำให้ไม่ต้องโหลดซ้ำ และไม่ทำให้ระบบช้าลง
      */
     getUserMapByLineUid: function() {
-      var cache = CacheService.getScriptCache();
-      var cacheKey = 'USER_MAP_BY_LINE_UID';
-      var cached = cache.get(cacheKey);
-      if (cached) {
-        try {
-          return JSON.parse(cached);
-        } catch (e) {}
-      }
-
       var payload = {
         action: 'getList',
         datasetKey: 'users_profile',
@@ -223,9 +176,6 @@ var CentralApiService = (function() {
               }
             }
           }
-          try {
-            cache.put(cacheKey, JSON.stringify(simpleMap), 1800);
-          } catch (ce) {}
           return simpleMap;
         }
       } catch (e) {
