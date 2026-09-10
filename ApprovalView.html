@@ -3,10 +3,10 @@
   <!-- Approver Sub-tabs -->
   <div id="approverSubtabsContainer" style="display: flex; gap: 8px; margin-bottom: 14px;">
     <button id="subtabL1Btn" class="btn btn-primary" style="flex: 1; padding: 10px;" onclick="ApprovalModule.switchSubtab('L1')">
-      ⏳ รออนุมัติระดับ 1 <span id="badgeL1Count" class="badge-counter" style="display:none;">0</span>
+      ⏳ รออนุมัติระดับ 1 <span id="subtabL1Tag" style="font-weight: normal; font-size: 0.8em; opacity: 0.85;"></span> <span id="badgeL1Count" class="badge-counter" style="display:none;">0</span>
     </button>
     <button id="subtabL2Btn" class="btn btn-secondary" style="flex: 1; padding: 10px;" onclick="ApprovalModule.switchSubtab('L2')">
-      ⏳ รออนุมัติระดับ 2 <span id="badgeL2Count" class="badge-counter" style="display:none;">0</span>
+      ⏳ รออนุมัติระดับ 2 <span id="subtabL2Tag" style="font-weight: normal; font-size: 0.8em; opacity: 0.85;"></span> <span id="badgeL2Count" class="badge-counter" style="display:none;">0</span>
     </button>
   </div>
 
@@ -48,13 +48,13 @@
 <!-- Modal: เลือกผู้อนุมัติระดับ 2 (ตอน L1 กดอนุมัติ) -->
 <div id="modalSelectL2" class="modal-overlay">
   <div class="modal-box">
-    <div class="modal-title">👤 เลือกผู้อนุมัติระดับ 2 (จป.บริหาร)</div>
+    <div class="modal-title">👤 เลือกผู้อนุมัติระดับ 2 <span id="modalL2Tag" style="font-weight: normal; color: #475569;"></span></div>
     <p style="font-size: 0.88rem; color: #64748B; margin-bottom: 14px;">
       กรุณาเลือกผู้มีอำนาจอนุมัติระดับ 2 เพื่อส่งต่อรายการที่เลือก (<span class="selected-count">0</span> รายการ) ไปพิจารณาขั้นสุดท้าย
     </p>
 
     <div class="form-group">
-      <label class="form-label">ผู้อนุมัติระดับ 2 <span class="required">*</span></label>
+      <label class="form-label" id="modalLabelL2">ผู้อนุมัติระดับ 2 <span id="modalLabelL2Tag" style="font-weight: normal; color: #475569;"></span> <span class="required">*</span></label>
       <select id="modalL2Select" class="form-control">
         <option value="">-- กรุณาเลือกผู้อนุมัติระดับ 2 --</option>
       </select>

@@ -52,6 +52,8 @@ var ApprovalService = (function() {
         user: user,
         approverName: approverName,
         approvalSteps: steps,
+        approveTagL1: Config.getApproveTagL1(),
+        approveTagL2: Config.getApproveTagL2(),
         asL1: asL1,
         asL2: asL2,
         l2Approvers: l2Approvers,

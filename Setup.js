@@ -8,14 +8,14 @@ function setupScriptProperties() {
     SPREADSHEET_ID: '1XXsywaAKQwWU4A2uGsvt6b2wxNVRJDIp-Z5nC3Bp8KM',
     CENTRAL_APP_URL: 'https://script.google.com/macros/s/AKfycbwhbYUFPHlMq5KrtHRZUNTjeHsKtSF2IW0bEzJZwL-hqBhzFx3gXR4ijL83ajPs0zcQDA/exec',
     SHARED_TOKEN: 'secret-token-12345',
-    LIFF_ID: '2009016720-NiJ6Jzhp',
+    LIFF_ID: '2009016720-cesy3wsR',
     LINE_CHANNEL_ACCESS_TOKEN: 'K45XA5KmRF7LvubrCP62u0joB0MCNJWA0KjVd4EbKrtadLmFKOYSGLR/qsCo/UgY2v+pmcve5/hYyf0VQDo4RiU4nbYYjVFJ3Yik2qAWZaGF5UKlXhb1+vSLilGI2FiwfGUAy6H2LWubxOEmtnadkwdB04t89/1O/w1cDnyilFU=',
-    APPROVE_TAG_L1: 'จป.วิชาชีพ',
-    APPROVE_TAG_L2: 'จป.บริหาร',
+    APPROVE_TAG_L1: 'จป.หัวหน้างาน',
+    APPROVE_TAG_L2: '-',
     SCREEN_TAG: 'SA01',
     PROJECT_DATASET_KEY: 'site',
     ENABLE_SHEET_FALLBACK: 'false',
-    APPROVAL_STEPS: '2',
+    APPROVAL_STEPS: '1',
     TRANSACTION_SHEET_NAME: 'FMSA01_TRANSACTION',
     FORM_MASTER_SHEET_NAME: 'FORM_MASTER'
   };

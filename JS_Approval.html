@@ -5,6 +5,8 @@ var ApprovalModule = {
   asL1: [],
   asL2: [],
   l2Approvers: [],
+  approveTagL1: '',
+  approveTagL2: '',
   selectedIds: [],
   questionsMap: {},
 
@@ -28,13 +30,19 @@ var ApprovalModule = {
     if (this.approvalSteps === 1) {
       if (btnL2) btnL2.style.display = 'none';
       if (btnL1) {
-        btnL1.innerHTML = '⏳ รายการรออนุมัติ <span id="badgeL1Count" class="badge-counter" style="display:none;">0</span>';
+        var tag1 = this.approveTagL1 ? ' (' + this.approveTagL1 + ')' : '';
+        btnL1.innerHTML = '⏳ รายการรออนุมัติ' + tag1 + ' <span id="badgeL1Count" class="badge-counter" style="display:none;">0</span>';
       }
       this.activeSubtab = 'L1';
     } else {
-      if (btnL2) btnL2.style.display = 'block';
+      if (btnL2) {
+        btnL2.style.display = 'block';
+        var tag2 = (this.approveTagL2 && this.approveTagL2 !== '-') ? ' (' + this.approveTagL2 + ')' : '';
+        btnL2.innerHTML = '⏳ รออนุมัติระดับ 2' + tag2 + ' <span id="badgeL2Count" class="badge-counter" style="display:none;">0</span>';
+      }
       if (btnL1) {
-        btnL1.innerHTML = '⏳ รออนุมัติระดับ 1 <span id="badgeL1Count" class="badge-counter" style="display:none;">0</span>';
+        var tag1 = this.approveTagL1 ? ' (' + this.approveTagL1 + ')' : '';
+        btnL1.innerHTML = '⏳ รออนุมัติระดับ 1' + tag1 + ' <span id="badgeL1Count" class="badge-counter" style="display:none;">0</span>';
       }
     }
   },
@@ -76,6 +84,8 @@ var ApprovalModule = {
         App.hideLoading();
         if (res && res.success && res.data) {
           self.approvalSteps = Number(res.data.approvalSteps) || 2;
+          self.approveTagL1 = res.data.approveTagL1 || '';
+          self.approveTagL2 = res.data.approveTagL2 || '';
           self.asL1 = res.data.asL1 || [];
           self.asL2 = res.data.asL2 || [];
           self.l2Approvers = res.data.l2Approvers || [];
@@ -219,6 +229,12 @@ var ApprovalModule = {
         this.confirmApproveSingleStep_();
       }
     } else if (this.activeSubtab === 'L1') {
+      var tag2Text = (this.approveTagL2 && this.approveTagL2 !== '-') ? ' (' + this.approveTagL2 + ')' : '';
+      var mTitle = document.getElementById('modalL2Tag');
+      if (mTitle) mTitle.textContent = tag2Text;
+      var mLabel = document.getElementById('modalLabelL2Tag');
+      if (mLabel) mLabel.textContent = tag2Text;
+
       var select = document.getElementById('modalL2Select');
       if (select) {
         select.innerHTML = '<option value="">-- กรุณาเลือกผู้อนุมัติระดับ 2 --</option>';
