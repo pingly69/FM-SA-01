@@ -33,11 +33,12 @@ var ChecklistService = (function() {
      * - รายชื่อผู้อนุมัติระดับ 1 (จาก Central API Tag "จป.วิชาชีพ")
      * - ข้อมูลเดิมที่เคยบันทึกไว้ในวันนั้น (ถ้ามี)
      */
-    getChecklistFormData: function(lineUid, transDate) {
+    getChecklistFormData: function(lineUid, transDate, forceFresh) {
       var targetDate = transDate || DateUtils.todayBangkok();
-      var questions = FormMasterRepo.getFormMasterCached();
-      var projects = CentralApiService.getProjectList();
-      var l1Approvers = CentralApiService.getApproveList(Config.getApproveTagL1());
+      var isFresh = (forceFresh === true || forceFresh === 'true');
+      var questions = isFresh ? FormMasterRepo.refreshFormMasterCache() : FormMasterRepo.getFormMasterCached();
+      var projects = CentralApiService.getProjectList(isFresh);
+      var l1Approvers = CentralApiService.getApproveList(Config.getApproveTagL1(), isFresh);
 
       var existingTx = null;
       var isEditable = true;

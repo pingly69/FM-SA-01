@@ -1079,7 +1079,11 @@
 
         if (action === 'verifyUser') {
           body.lineUid = args[0];
-        } else if (action === 'getChecklistForm' || action === 'getTransactionByDate') {
+        } else if (action === 'getChecklistForm') {
+          body.lineUid = args[0];
+          body.transDate = args[1];
+          body.forceFresh = !!args[2];
+        } else if (action === 'getTransactionByDate') {
           body.lineUid = args[0];
           body.transDate = args[1];
         } else if (action === 'getApprovalQueue') {
@@ -1351,7 +1355,7 @@
       forceRefreshCache: function() {
         var self = this;
         self.clearLocalCache_();
-        App.showToast('กำลังดึงข้อมูลโครงการและแบบฟอร์มคำถามล่าสุดจาก Server...', 'info');
+        App.showToast('กำลังดึงข้อมูลโครงการ ผู้อนุมัติ และแบบฟอร์มล่าสุดจากส่วนกลาง...', 'info');
         var dateInput = document.getElementById('transDateInput');
         var targetDate = (dateInput && dateInput.value) ? dateInput.value : self.getTodayString_();
         self.loadForm(targetDate, true);
@@ -1425,7 +1429,7 @@
 
         self.answers = {};
 
-        App.callServer('apiGetChecklistForm', App.currentUser.line_uid, transDate)
+        App.callServer('apiGetChecklistForm', App.currentUser.line_uid, transDate, !!isForceRefresh)
           .then(function(res) {
             App.hideLoading();
             if (res && res.success && res.data) {
@@ -1439,7 +1443,7 @@
               self.renderForm_(res.data);
 
               if (isForceRefresh) {
-                App.showToast('อัปเดตข้อมูลโครงการและแบบสอบถามล่าสุดเรียบร้อยแล้ว', 'success');
+                App.showToast('อัปเดตข้อมูลโครงการ ผู้อนุมัติ และแบบสอบถามล่าสุดเรียบร้อยแล้ว', 'success');
               }
             } else {
               var err = (res && res.error) ? res.error.message : 'ไม่สามารถโหลดฟอร์มได้';

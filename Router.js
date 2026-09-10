@@ -16,7 +16,7 @@ function doGet(e) {
       if (action === 'verifyUser') {
         result = apiVerifyUser(e.parameter.lineUid);
       } else if (action === 'getChecklistForm') {
-        result = apiGetChecklistForm(e.parameter.lineUid, e.parameter.transDate);
+        result = apiGetChecklistForm(e.parameter.lineUid, e.parameter.transDate, e.parameter.forceFresh);
       } else if (action === 'getTransactionByDate') {
         result = apiGetTransactionByDate(e.parameter.lineUid, e.parameter.transDate);
       } else if (action === 'getApprovalQueue') {
@@ -68,7 +68,7 @@ function doPost(e) {
     if (action === 'verifyUser') {
       result = apiVerifyUser(body.lineUid);
     } else if (action === 'getChecklistForm') {
-      result = apiGetChecklistForm(body.lineUid, body.transDate);
+      result = apiGetChecklistForm(body.lineUid, body.transDate, body.forceFresh);
     } else if (action === 'getTransactionByDate') {
       result = apiGetTransactionByDate(body.lineUid, body.transDate);
     } else if (action === 'saveChecklist') {

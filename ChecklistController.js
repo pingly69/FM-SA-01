@@ -3,9 +3,9 @@
  * แปลง input, ตรวจสอบรูปแบบเบื้องต้น, เรียก Service, ห่อ Response
  */
 
-function apiGetChecklistForm(lineUid, transDate) {
+function apiGetChecklistForm(lineUid, transDate, forceFresh) {
   try {
-    var data = ChecklistService.getChecklistFormData(lineUid, transDate);
+    var data = ChecklistService.getChecklistFormData(lineUid, transDate, forceFresh);
     return ResponseUtils.ok(data);
   } catch (e) {
     Logger.log('[ChecklistController] apiGetChecklistForm error: ' + e);

@@ -106,23 +106,27 @@ var CentralApiService = (function() {
      * @param {string} approveTag เช่น "จป.วิชาชีพ" หรือ "จป.บริหาร"
      * @returns {Array<Object>} รายชื่อผู้อนุมัติ [{ users_id, users_name, line_uid, emp_no, email }]
      */
-    getApproveList: function(approveTag) {
+    getApproveList: function(approveTag, forceFresh) {
       if (!approveTag) return [];
 
+      var isFresh = (forceFresh === true || forceFresh === 'true');
       var cache = CacheService.getScriptCache();
       var cacheKey = 'APPROVE_LIST_' + encodeURIComponent(approveTag);
-      var cached = cache.get(cacheKey);
-      if (cached) {
-        try {
-          return JSON.parse(cached);
-        } catch (e) {}
+
+      if (!isFresh) {
+        var cached = cache.get(cacheKey);
+        if (cached) {
+          try {
+            return JSON.parse(cached);
+          } catch (e) {}
+        }
       }
 
       var payload = {
         action: 'getApproveList',
         datasetKey: 'users_profile',
         approve_tag: approveTag,
-        forceFresh: false
+        forceFresh: isFresh
       };
 
       try {
@@ -144,23 +148,28 @@ var CentralApiService = (function() {
     /**
      * ดึงรายชื่อโครงการ/สาขา จาก Central Cache (datasetKey: "site")
      * ตาม integration-guide.md
+     * @param {boolean} [forceFresh=false] บังคับดึงข้อมูลสดจากส่วนกลาง
      * @returns {Array<string>} รายชื่อโครงการ
      */
-    getProjectList: function() {
+    getProjectList: function(forceFresh) {
       var datasetKey = Config.getProjectDatasetKey() || 'site';
+      var isFresh = (forceFresh === true || forceFresh === 'true');
       var cache = CacheService.getScriptCache();
       var cacheKey = 'PROJECT_LIST_' + datasetKey;
-      var cached = cache.get(cacheKey);
-      if (cached) {
-        try {
-          return JSON.parse(cached);
-        } catch (e) {}
+
+      if (!isFresh) {
+        var cached = cache.get(cacheKey);
+        if (cached) {
+          try {
+            return JSON.parse(cached);
+          } catch (e) {}
+        }
       }
 
       var payload = {
         action: 'getList',
         datasetKey: datasetKey,
-        forceFresh: false
+        forceFresh: isFresh
       };
 
       try {
