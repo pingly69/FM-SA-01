@@ -150,18 +150,6 @@ var App = {
       self.renderUserProfileHeader_();
       self.hideLoading();
       if (callback) callback(self.currentUser);
-
-      self.callServer('apiVerifyUser', lineUid)
-        .then(function(res) {
-          if (res && res.success && res.data) {
-            self.currentUser = res.data;
-            try { sessionStorage.setItem(cacheKey, JSON.stringify(res.data)); } catch (e) {}
-            self.renderUserProfileHeader_();
-          }
-        })
-        .catch(function(e) {
-          console.warn('[App] Background re-verify error:', e);
-        });
       return;
     }
 

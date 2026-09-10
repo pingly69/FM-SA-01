@@ -993,19 +993,6 @@
           self.renderUserProfileHeader_();
           self.hideLoading();
           if (callback) callback(self.currentUser);
-
-          // ซิงค์สิทธิ์ล่าสุดจากเซิร์ฟเวอร์แบบ Background (ไม่บล็อกหน้าจอ)
-          self.callServer('apiVerifyUser', lineUid)
-            .then(function(res) {
-              if (res && res.success && res.data) {
-                self.currentUser = res.data;
-                try { sessionStorage.setItem(cacheKey, JSON.stringify(res.data)); } catch (e) {}
-                self.renderUserProfileHeader_();
-              }
-            })
-            .catch(function(e) {
-              console.warn('[App] Background re-verify error:', e);
-            });
           return;
         }
 
@@ -1284,10 +1271,11 @@
       },
 
       getCacheKeys_: function() {
-        var tag = (window.App && window.App.screenTag) ? String(window.App.screenTag).trim() : 'SA03';
+        var tag = (window.App && window.App.screenTag) ? String(window.App.screenTag).trim() : 'SA01';
         return {
           QUESTIONS: 'FM_' + tag + '_LOCAL_QUESTIONS',
           PROJECTS: 'CENTRAL_SITE_PROJECTS',
+          APPROVERS: 'FM_' + tag + '_LOCAL_APPROVERS',
           TIME: 'FM_' + tag + '_LOCAL_CACHE_TIME'
         };
       },
@@ -1304,16 +1292,19 @@
           }
           var qRaw = localStorage.getItem(keys.QUESTIONS);
           var pRaw = localStorage.getItem(keys.PROJECTS);
+          var aRaw = localStorage.getItem(keys.APPROVERS);
           if (!qRaw || !pRaw) return null;
 
           var questions = JSON.parse(qRaw);
           var projects = JSON.parse(pRaw);
+          var approvers = aRaw ? JSON.parse(aRaw) : [];
           if (!Array.isArray(questions) || questions.length === 0 || !Array.isArray(projects) || projects.length === 0) {
             return null;
           }
           return {
             questions: questions,
             projects: projects,
+            approvers: Array.isArray(approvers) ? approvers : [],
             timestamp: Number(timeStr)
           };
         } catch (e) {
@@ -1322,7 +1313,7 @@
         }
       },
 
-      setLocalCache_: function(questions, projects) {
+      setLocalCache_: function(questions, projects, approvers) {
         try {
           var keys = this.getCacheKeys_();
           if (Array.isArray(questions) && questions.length > 0) {
@@ -1330,6 +1321,9 @@
           }
           if (Array.isArray(projects) && projects.length > 0) {
             localStorage.setItem(keys.PROJECTS, JSON.stringify(projects));
+          }
+          if (Array.isArray(approvers) && approvers.length > 0) {
+            localStorage.setItem(keys.APPROVERS, JSON.stringify(approvers));
           }
           localStorage.setItem(keys.TIME, String(Date.now()));
         } catch (e) {
@@ -1342,10 +1336,12 @@
           var keys = this.getCacheKeys_();
           localStorage.removeItem(keys.QUESTIONS);
           localStorage.removeItem(keys.PROJECTS);
+          localStorage.removeItem(keys.APPROVERS);
           localStorage.removeItem(keys.TIME);
           // เคลียร์คีย์เวอร์ชันเดิม (ถ้ามี)
           localStorage.removeItem('FMSA03_LOCAL_QUESTIONS');
           localStorage.removeItem('FMSA03_LOCAL_PROJECTS');
+          localStorage.removeItem('FMSA03_LOCAL_APPROVERS');
           localStorage.removeItem('FMSA03_LOCAL_CACHE_TIME');
         } catch (e) {
           console.warn('[ChecklistModule] clearLocalCache_ error:', e);
@@ -1382,16 +1378,40 @@
         }
       },
 
+      renderApproverDropdown_: function(approvers, selectedApprover, isEditable) {
+        var aSelect = document.getElementById('approver1Select');
+        if (!aSelect) return;
+        var currentVal = (selectedApprover !== undefined && selectedApprover !== null && selectedApprover !== '') 
+          ? selectedApprover 
+          : aSelect.value;
+
+        aSelect.innerHTML = '<option value="">-- กรุณาเลือกผู้อนุมัติระดับ 1 --</option>';
+        (approvers || []).forEach(function(apv) {
+          var opt = document.createElement('option');
+          opt.value = apv.users_name;
+          opt.textContent = apv.users_name + (apv.emp_no ? ' (' + apv.emp_no + ')' : '');
+          if (currentVal === apv.users_name) opt.selected = true;
+          aSelect.appendChild(opt);
+        });
+
+        if (isEditable !== undefined) {
+          aSelect.disabled = !isEditable;
+        }
+      },
+
       loadForm: function(transDate, isForceRefresh) {
         var self = this;
         if (!App.currentUser) return;
 
         var cached = !isForceRefresh ? self.getLocalCache_() : null;
 
-        // Fast Path: เรนเดอร์โครงการและคำถามจาก Local Storage ทันที (< 0.05 วินาที)
+        // Fast Path: เรนเดอร์โครงการ, ผู้อนุมัติ และคำถามจาก Local Storage ทันที (< 0.05 วินาที)
         if (cached) {
           if (cached.projects && cached.projects.length > 0) {
             self.renderProjectDropdown_(cached.projects);
+          }
+          if (cached.approvers && cached.approvers.length > 0) {
+            self.renderApproverDropdown_(cached.approvers);
           }
           var qContainer = document.getElementById('questionsContainer');
           if (qContainer && (!qContainer.children || qContainer.children.length === 0)) {
@@ -1411,9 +1431,9 @@
             if (res && res.success && res.data) {
               self.currentData = res.data;
 
-              // บันทึกคำถามและโครงการลง Local Cache สำหรับใช้งาน 24 ชั่วโมง
+              // บันทึกคำถาม โครงการ และรายชื่อผู้อนุมัติลง Local Cache สำหรับใช้งาน 24 ชั่วโมง
               if (res.data.questions && res.data.projects) {
-                self.setLocalCache_(res.data.questions, res.data.projects);
+                self.setLocalCache_(res.data.questions, res.data.projects, res.data.l1Approvers);
               }
 
               self.renderForm_(res.data);
@@ -1424,11 +1444,17 @@
             } else {
               var err = (res && res.error) ? res.error.message : 'ไม่สามารถโหลดฟอร์มได้';
               App.showToast(err, 'error');
+              if (cached && cached.approvers && cached.approvers.length > 0) {
+                self.renderApproverDropdown_(cached.approvers);
+              }
             }
           })
           .catch(function(err) {
             App.hideLoading();
             App.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + err.message, 'error');
+            if (cached && cached.approvers && cached.approvers.length > 0) {
+              self.renderApproverDropdown_(cached.approvers);
+            }
           });
       },
 
@@ -1444,18 +1470,7 @@
         self.renderProjectDropdown_(data.projects || [], tx ? tx.project : '', isEditable);
 
         // Populate L1 Approver Select
-        var aSelect = document.getElementById('approver1Select');
-        if (aSelect) {
-          aSelect.innerHTML = '<option value="">-- กรุณาเลือกผู้อนุมัติระดับ 1 --</option>';
-          (data.l1Approvers || []).forEach(function(apv) {
-            var opt = document.createElement('option');
-            opt.value = apv.users_name;
-            opt.textContent = apv.users_name + (apv.emp_no ? ' (' + apv.emp_no + ')' : '');
-            if (tx && tx.approveProfile1 === apv.users_name) opt.selected = true;
-            aSelect.appendChild(opt);
-          });
-          aSelect.disabled = !isEditable;
-        }
+        self.renderApproverDropdown_(data.l1Approvers || [], tx ? tx.approveProfile1 : '', isEditable);
 
         // Load Previous Answers
         if (tx && tx.answers) {
@@ -1466,7 +1481,6 @@
         self.renderQuestions_(data.questions || [], isEditable);
 
         self.updateActionButtons_(tx, isEditable);
-        self.updateProgress_();
       },
 
       updateActionButtons_: function(tx, isEditable) {
