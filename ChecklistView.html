@@ -1,0 +1,67 @@
+<!-- ChecklistView.html: หน้าจอกรอกแบบฟอร์มตรวจสอบความปลอดภัย (FM-SA-03) -->
+<div id="checklistView" class="view-panel">
+  <!-- Status Notice Banner -->
+  <div id="statusNotice" style="display: none;"></div>
+
+  <!-- Header Card: Project & Approver Selection -->
+  <div class="card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span>📋 ข้อมูลการตรวจสอบ</span>
+        <button type="button" id="btnRefreshMasterCache" onclick="ChecklistModule.forceRefreshCache()" 
+          title="กดเพื่อดึงรายชื่อโครงการและแบบฟอร์มคำถามล่าสุดจากส่วนกลาง" 
+          style="background: #F1F5F9; border: 1px solid #CBD5E1; color: #475569; font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-weight: 500;">
+          🔄 อัปเดตข้อมูล
+        </button>
+      </div>
+      <span id="transStatusBadge" class="brand-badge" style="background:#E2E8F0; color:#334155;">ใหม่</span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">วันที่ตรวจสอบ <span class="required">*</span></label>
+      <input type="date" id="transDateInput" class="form-control" onchange="ChecklistModule.onDateChange(this.value)">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">โครงการ / สถานที่ปฏิบัติงาน (Project) <span class="required">*</span></label>
+      <select id="projectSelect" class="form-control">
+        <option value="">-- กำลังโหลดรายชื่อโครงการ... --</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">ผู้อนุมัติระดับ 1 (จป.วิชาชีพ) <span class="required">*</span></label>
+      <select id="approver1Select" class="form-control">
+        <option value="">-- กำลังโหลดรายชื่อผู้อนุมัติ... --</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Progress Bar Card -->
+  <div class="progress-card">
+    <div class="progress-info">
+      <span id="progressText">ความคืบหน้าการตอบ</span>
+      <span id="progressPercent">0% (0/0)</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div id="progressBarFill" class="progress-bar-fill" style="width: 0%;"></div>
+    </div>
+  </div>
+
+  <!-- Questions Container (Rendered dynamically) -->
+  <div id="questionsContainer">
+    <!-- Rendered by JS_Checklist -->
+  </div>
+</div>
+
+<!-- Sticky Bottom Bar for Checklist Entry -->
+<div id="checklistBottomBar" class="bottom-bar">
+  <div class="bottom-bar-inner" style="display: flex; gap: 10px;">
+    <button id="btnDeleteChecklist" type="button" class="btn" onclick="ChecklistModule.deleteCurrentChecklist()" style="display: none; background: #FEE2E2; color: #B91C1C; border: 1px solid #FCA5A5; font-weight: 600; flex: 0 0 auto; padding: 12px 14px; border-radius: var(--radius-md); font-size: 0.92rem; cursor: pointer;">
+      🗑️ ลบ
+    </button>
+    <button id="btnSaveChecklist" class="btn btn-primary" onclick="ChecklistModule.submitChecklist()" style="flex: 1;">
+      💾 บันทึกผลการตรวจสอบ
+    </button>
+  </div>
+</div>
