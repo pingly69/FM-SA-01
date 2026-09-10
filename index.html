@@ -680,7 +680,7 @@
           <div style="display: flex; align-items: center; gap: 8px;">
             <span>📋 ข้อมูลการตรวจสอบ</span>
             <button type="button" id="btnRefreshMasterCache" onclick="ChecklistModule.forceRefreshCache()" 
-              title="กดเพื่อดึงรายชื่อโครงการและแบบฟอร์มคำถามล่าสุดจากส่วนกลาง" 
+              title="กดเพื่อดึงรายชื่อโครงการและผู้อนุมัติล่าสุดจากเซิร์ฟเวอร์ (ระบบหน่วงเวลา 10 นาทีป้องกันเซิร์ฟเวอร์ขัดข้อง)" 
               style="background: #F1F5F9; border: 1px solid #CBD5E1; color: #475569; font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-weight: 500;">
               🔄 อัปเดตข้อมูล
             </button>
@@ -1082,7 +1082,6 @@
         } else if (action === 'getChecklistForm') {
           body.lineUid = args[0];
           body.transDate = args[1];
-          body.forceFresh = !!args[2];
         } else if (action === 'getTransactionByDate') {
           body.lineUid = args[0];
           body.transDate = args[1];
@@ -1355,7 +1354,7 @@
       forceRefreshCache: function() {
         var self = this;
         self.clearLocalCache_();
-        App.showToast('กำลังดึงข้อมูลโครงการ ผู้อนุมัติ และแบบฟอร์มล่าสุดจากส่วนกลาง...', 'info');
+        App.showToast('กำลังดึงข้อมูลโครงการและผู้อนุมัติล่าสุดจากเซิร์ฟเวอร์...', 'info');
         var dateInput = document.getElementById('transDateInput');
         var targetDate = (dateInput && dateInput.value) ? dateInput.value : self.getTodayString_();
         self.loadForm(targetDate, true);
@@ -1424,12 +1423,12 @@
         }
 
         if (!cached || isForceRefresh) {
-          App.showLoading(isForceRefresh ? 'กำลังอัปเดตข้อมูลล่าสุดจากส่วนกลาง...' : 'กำลังโหลดแบบฟอร์มตรวจสอบ...');
+          App.showLoading(isForceRefresh ? 'กำลังอัปเดตข้อมูลล่าสุดจากเซิร์ฟเวอร์...' : 'กำลังโหลดแบบฟอร์มตรวจสอบ...');
         }
 
         self.answers = {};
 
-        App.callServer('apiGetChecklistForm', App.currentUser.line_uid, transDate, !!isForceRefresh)
+        App.callServer('apiGetChecklistForm', App.currentUser.line_uid, transDate)
           .then(function(res) {
             App.hideLoading();
             if (res && res.success && res.data) {
@@ -1443,7 +1442,7 @@
               self.renderForm_(res.data);
 
               if (isForceRefresh) {
-                App.showToast('อัปเดตข้อมูลโครงการ ผู้อนุมัติ และแบบสอบถามล่าสุดเรียบร้อยแล้ว', 'success');
+                App.showToast('อัปเดตข้อมูลโครงการและผู้อนุมัติล่าสุดเรียบร้อยแล้ว', 'success');
               }
             } else {
               var err = (res && res.error) ? res.error.message : 'ไม่สามารถโหลดฟอร์มได้';

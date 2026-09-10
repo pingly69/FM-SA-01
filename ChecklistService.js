@@ -33,12 +33,13 @@ var ChecklistService = (function() {
      * - รายชื่อผู้อนุมัติระดับ 1 (จาก Central API Tag "จป.วิชาชีพ")
      * - ข้อมูลเดิมที่เคยบันทึกไว้ในวันนั้น (ถ้ามี)
      */
-    getChecklistFormData: function(lineUid, transDate, forceFresh) {
+    getChecklistFormData: function(lineUid, transDate) {
       var targetDate = transDate || DateUtils.todayBangkok();
-      var isFresh = (forceFresh === true || forceFresh === 'true');
-      var questions = isFresh ? FormMasterRepo.refreshFormMasterCache() : FormMasterRepo.getFormMasterCached();
-      var projects = CentralApiService.getProjectList(isFresh);
-      var l1Approvers = CentralApiService.getApproveList(Config.getApproveTagL1(), isFresh);
+      // หน่วงข้อมูลใน ScriptCache (10 นาทีสำหรับ Central API และ 6 ชม. สำหรับ FORM_MASTER)
+      // ป้องกัน Google Sheets Timeout และ Google Quota Block เมื่อมีผู้ใช้กดพร้อมกัน
+      var questions = FormMasterRepo.getFormMasterCached();
+      var projects = CentralApiService.getProjectList();
+      var l1Approvers = CentralApiService.getApproveList(Config.getApproveTagL1());
 
       var existingTx = null;
       var isEditable = true;

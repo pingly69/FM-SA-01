@@ -183,7 +183,7 @@ var ChecklistModule = {
   forceRefreshCache: function() {
     var self = this;
     self.clearLocalCache_();
-    App.showToast('กำลังดึงข้อมูลโครงการ ผู้อนุมัติ และแบบฟอร์มล่าสุดจากส่วนกลาง...', 'info');
+    App.showToast('กำลังดึงข้อมูลโครงการและผู้อนุมัติล่าสุดจากเซิร์ฟเวอร์...', 'info');
     var dateInput = document.getElementById('transDateInput');
     var targetDate = (dateInput && dateInput.value) ? dateInput.value : self.getTodayString_();
     self.loadForm(targetDate, true);
@@ -252,12 +252,12 @@ var ChecklistModule = {
     }
 
     if (!cached || isForceRefresh) {
-      App.showLoading(isForceRefresh ? 'กำลังอัปเดตข้อมูลล่าสุดจากส่วนกลาง...' : 'กำลังโหลดแบบฟอร์มตรวจสอบ...');
+      App.showLoading(isForceRefresh ? 'กำลังอัปเดตข้อมูลล่าสุดจากเซิร์ฟเวอร์...' : 'กำลังโหลดแบบฟอร์มตรวจสอบ...');
     }
 
     self.answers = {};
 
-    App.callServer('apiGetChecklistForm', App.currentUser.line_uid, transDate, !!isForceRefresh)
+    App.callServer('apiGetChecklistForm', App.currentUser.line_uid, transDate)
       .then(function(res) {
         App.hideLoading();
         if (res && res.success && res.data) {
@@ -271,7 +271,7 @@ var ChecklistModule = {
           self.renderForm_(res.data);
 
           if (isForceRefresh) {
-            App.showToast('อัปเดตข้อมูลโครงการ ผู้อนุมัติ และแบบสอบถามล่าสุดเรียบร้อยแล้ว', 'success');
+            App.showToast('อัปเดตข้อมูลโครงการและผู้อนุมัติล่าสุดเรียบร้อยแล้ว', 'success');
           }
         } else {
           var err = (res && res.error) ? res.error.message : 'ไม่สามารถโหลดฟอร์มได้';

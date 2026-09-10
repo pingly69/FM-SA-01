@@ -103,38 +103,36 @@ var CentralApiService = (function() {
 
     /**
      * ดึงรายชื่อผู้อนุมัติตาม Tag ตาม spec-users-profile-api.md หมวด 4.2
+     * หน่วงแคชที่ ScriptCache 10 นาที (600 วินาที) ป้องกัน Google Quota / Timeout
      * @param {string} approveTag เช่น "จป.วิชาชีพ" หรือ "จป.บริหาร"
      * @returns {Array<Object>} รายชื่อผู้อนุมัติ [{ users_id, users_name, line_uid, emp_no, email }]
      */
-    getApproveList: function(approveTag, forceFresh) {
+    getApproveList: function(approveTag) {
       if (!approveTag) return [];
 
-      var isFresh = (forceFresh === true || forceFresh === 'true');
       var cache = CacheService.getScriptCache();
       var cacheKey = 'APPROVE_LIST_' + encodeURIComponent(approveTag);
 
-      if (!isFresh) {
-        var cached = cache.get(cacheKey);
-        if (cached) {
-          try {
-            return JSON.parse(cached);
-          } catch (e) {}
-        }
+      var cached = cache.get(cacheKey);
+      if (cached) {
+        try {
+          return JSON.parse(cached);
+        } catch (e) {}
       }
 
       var payload = {
         action: 'getApproveList',
         datasetKey: 'users_profile',
         approve_tag: approveTag,
-        forceFresh: isFresh
+        forceFresh: false
       };
 
       try {
         var res = postRequest_(payload);
         if (res && res.ok && Array.isArray(res.data)) {
-          // เก็บใน Cache 15 นาที เพื่อลด request ซ้ำ
+          // เก็บใน Cache 10 นาที (600 วินาที) ป้องกัน Google Rate Limit / Timeout
           try {
-            cache.put(cacheKey, JSON.stringify(res.data), 900);
+            cache.put(cacheKey, JSON.stringify(res.data), 600);
           } catch (e) {}
           return res.data;
         }
@@ -147,35 +145,31 @@ var CentralApiService = (function() {
 
     /**
      * ดึงรายชื่อโครงการ/สาขา จาก Central Cache (datasetKey: "site")
-     * ตาม integration-guide.md
-     * @param {boolean} [forceFresh=false] บังคับดึงข้อมูลสดจากส่วนกลาง
+     * ตาม integration-guide.md หน่วงแคช 10 นาที (600 วินาที)
      * @returns {Array<string>} รายชื่อโครงการ
      */
-    getProjectList: function(forceFresh) {
+    getProjectList: function() {
       var datasetKey = Config.getProjectDatasetKey() || 'site';
-      var isFresh = (forceFresh === true || forceFresh === 'true');
       var cache = CacheService.getScriptCache();
       var cacheKey = 'PROJECT_LIST_' + datasetKey;
 
-      if (!isFresh) {
-        var cached = cache.get(cacheKey);
-        if (cached) {
-          try {
-            return JSON.parse(cached);
-          } catch (e) {}
-        }
+      var cached = cache.get(cacheKey);
+      if (cached) {
+        try {
+          return JSON.parse(cached);
+        } catch (e) {}
       }
 
       var payload = {
         action: 'getList',
         datasetKey: datasetKey,
-        forceFresh: isFresh
+        forceFresh: false
       };
 
       try {
         var res = postRequest_(payload);
         if (res && res.ok && Array.isArray(res.data)) {
-          cache.put(cacheKey, JSON.stringify(res.data), 1800); // แคช 30 นาที
+          cache.put(cacheKey, JSON.stringify(res.data), 600); // แคช 10 นาที (600 วินาที)
           return res.data;
         }
       } catch (e) {

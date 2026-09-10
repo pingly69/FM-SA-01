@@ -247,7 +247,6 @@ var App = {
     } else if (action === 'getChecklistForm') {
       body.lineUid = args[0];
       body.transDate = args[1];
-      body.forceFresh = !!args[2];
     } else if (action === 'getTransactionByDate') {
       body.lineUid = args[0];
       body.transDate = args[1];
