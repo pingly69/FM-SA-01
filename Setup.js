@@ -122,7 +122,8 @@ function initDatabaseSheets() {
     'APPROVE2_RESULT',
     'REJECT_REASON',
     'RESUBMIT_COUNT',
-    'ANSWERS_JSON'
+    'ANSWERS_JSON',
+    'USER_NAME'
   ];
 
   var currentTransData = transSheet.getDataRange().getValues();
@@ -135,7 +136,7 @@ function initDatabaseSheets() {
     tHeaderRange.setFontColor('#FFFFFF');
     transSheet.setFrozenRows(1);
     transSheet.autoResizeColumns(1, transHeaders.length);
-    Logger.log('✅ สร้าง Header ตาราง FMSA03_TRANSACTION เรียบร้อย (16 Columns)');
+    Logger.log('✅ สร้าง Header ตาราง FMSA01_TRANSACTION เรียบร้อย (17 Columns)');
   }
 
   // ล้าง Cache เก่าเพื่อให้อ่านค่าใหม่ทันที

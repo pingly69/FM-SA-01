@@ -113,6 +113,9 @@ var ChecklistService = (function() {
           answers: answers,
           updateDatetime: DateUtils.nowBangkok()
         };
+        if (payload.userName) {
+          updates.userName = String(payload.userName).trim();
+        }
 
         // ถ้าสถานะเดิมคือ REJECTED ให้ปรับใช้กฎ BR-4
         if (existing.status === 'REJECTED') {
@@ -135,6 +138,7 @@ var ChecklistService = (function() {
           transDate: transDate,
           project: project,
           lineUid: lineUid,
+          userName: String(payload.userName || '').trim(),
           createDatetime: DateUtils.nowBangkok(),
           updateDatetime: '',
           approveProfile1: approveProfile1,

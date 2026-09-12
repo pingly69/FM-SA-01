@@ -24,7 +24,8 @@ var TransactionRepo = (function() {
     'APPROVE2_RESULT',
     'REJECT_REASON',
     'RESUBMIT_COUNT',
-    'ANSWERS_JSON'
+    'ANSWERS_JSON',
+    'USER_NAME'
   ];
 
   function getSheet_() {
@@ -67,12 +68,15 @@ var TransactionRepo = (function() {
       }
     }
 
+    var userName = String(row[16] || '').trim();
+
     return {
       rowIndex: rowIndex,
       transRecordId: Number(row[0]),
       transDate: normalizeDate_(row[1]),
       project: String(row[2] || '').trim(),
       lineUid: String(row[3] || '').trim(),
+      userName: userName || String(row[3] || '').trim(),
       createDatetime: String(row[4] || ''),
       updateDatetime: String(row[5] || ''),
       approveProfile1: String(row[6] || '').trim(),
@@ -182,7 +186,8 @@ var TransactionRepo = (function() {
           String(record.approve2Result || ''),
           String(record.rejectReason || ''),
           Number(record.resubmitCount || 0),
-          typeof record.answers === 'object' ? JSON.stringify(record.answers) : String(record.answersJson || '{}')
+          typeof record.answers === 'object' ? JSON.stringify(record.answers) : String(record.answersJson || '{}'),
+          String(record.userName || '')
         ];
 
         sheet.appendRow(rowData);
@@ -230,6 +235,9 @@ var TransactionRepo = (function() {
         if (updates.resubmitCount !== undefined) row[14] = updates.resubmitCount;
         if (updates.answers !== undefined) {
           row[15] = typeof updates.answers === 'object' ? JSON.stringify(updates.answers) : String(updates.answers);
+        }
+        if (updates.userName !== undefined) {
+          row[16] = updates.userName;
         }
 
         row[5] = updates.updateDatetime || DateUtils.nowBangkok(); // UPDATE_DATETIME
@@ -294,6 +302,9 @@ var TransactionRepo = (function() {
           if (updates.resubmitCount !== undefined) row[14] = updates.resubmitCount;
           if (updates.answers !== undefined) {
             row[15] = typeof updates.answers === 'object' ? JSON.stringify(updates.answers) : String(updates.answers);
+          }
+          if (updates.userName !== undefined) {
+            row[16] = updates.userName;
           }
 
           row[5] = updates.updateDatetime || now; // UPDATE_DATETIME

@@ -55,19 +55,43 @@ var ApprovalService = (function() {
       var questions = FormMasterRepo.getFormMasterCached();
       var totalPending = asL1.length + asL2.length;
 
-      // ดึง UserMap เพื่อแปลง LineUid -> userName เฉพาะกรณีที่มีรายการรออนุมัติจริงเท่านั้น
-      // หากไม่มีรายการเลย (totalPending = 0) ให้ข้ามทันทีเพื่อไม่ให้เสียเวลาโหลด Central API
-      if (totalPending > 0) {
-        var userMap = CentralApiService.getUserMapByLineUid();
-        for (var i = 0; i < asL1.length; i++) {
-          var u1 = asL1[i].lineUid;
-          asL1[i].userName = userMap[u1] || u1;
+      // ตรวจสอบว่ามีรายการใดที่ยังไม่มีชื่อผู้ตรวจ (legacy records) หรือไม่
+      // หากทุกรายการมี userName จากชีตอยู่แล้ว จะข้ามการยิง Central API ทิ้ง 100% (ประหยัดเวลา 5-8 วินาที)
+      var needUserMapLookup = false;
+      for (var i = 0; i < asL1.length; i++) {
+        if (!asL1[i].userName || asL1[i].userName === asL1[i].lineUid) {
+          needUserMapLookup = true;
+          break;
         }
-        if (steps > 1) {
-          for (var j = 0; j < asL2.length; j++) {
-            var u2 = asL2[j].lineUid;
-            asL2[j].userName = userMap[u2] || u2;
+      }
+      if (!needUserMapLookup && steps > 1) {
+        for (var j = 0; j < asL2.length; j++) {
+          if (!asL2[j].userName || asL2[j].userName === asL2[j].lineUid) {
+            needUserMapLookup = true;
+            break;
           }
+        }
+      }
+
+      if (needUserMapLookup && totalPending > 0) {
+        try {
+          var userMap = CentralApiService.getUserMapByLineUid();
+          for (var k = 0; k < asL1.length; k++) {
+            if (!asL1[k].userName || asL1[k].userName === asL1[k].lineUid) {
+              var u1 = asL1[k].lineUid;
+              asL1[k].userName = userMap[u1] || u1;
+            }
+          }
+          if (steps > 1) {
+            for (var m = 0; m < asL2.length; m++) {
+              if (!asL2[m].userName || asL2[m].userName === asL2[m].lineUid) {
+                var u2 = asL2[m].lineUid;
+                asL2[m].userName = userMap[u2] || u2;
+              }
+            }
+          }
+        } catch (errUserMap) {
+          Logger.log('[ApprovalService] getUserMapByLineUid fallback warning (ignored): ' + errUserMap);
         }
       }
 

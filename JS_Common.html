@@ -8,42 +8,13 @@ var App = {
   gasUrl: 'https://script.google.com/macros/s/AKfycbzem8n0H6PkCKaFugEEpt1aYhuH5G1MoFZDIQuArrnIg1oHV8sQJyyF1HCBF0KiOgxWyg/exec',
   _loadingTimer: null,
   _inFlightRequests: {},
-  _queueCheckDone: false,
 
   /**
-   * เรียกเมื่อ Checklist พร้อมทำงานแล้ว เพื่อเริ่มตรวจสอบคิวรออนุมัติในพื้นหลังอย่างปลอดภัย
-   * ป้องกันการชนกัน (Concurrency collision) กับ apiGetChecklistForm ในจังหวะเปิดแอปครั้งแรก
+   * onChecklistLoaded: จัดการหลัง Checklist โหลดเสร็จ (ไม่ดึงคิวอนุมัติเบื้องหลัง เพื่อป้องกันคำขอชนกัน)
    */
   onChecklistLoaded: function() {
-    var self = this;
-    if (self._queueCheckDone) return;
-    self._queueCheckDone = true;
-    if (!self.currentUser || !self.currentUser.line_uid) return;
-
-    setTimeout(function () {
-      var user = self.currentUser;
-      var now = new Date();
-      var currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-      self.callServer('apiGetApprovalQueue', user.line_uid, currentMonth, user.users_name)
-        .then(function (res) {
-          if (res && res.success && res.data) {
-            if (window.ApprovalModule) {
-              ApprovalModule.cachedQueueData = res.data;
-              ApprovalModule.lastLoadedMonth = currentMonth;
-              ApprovalModule.applyQueueData_(res.data);
-            }
-            var total = (res.data.asL1 ? res.data.asL1.length : 0) + (res.data.asL2 ? res.data.asL2.length : 0);
-            var badge = document.getElementById('approvalQueueBadge');
-            if (badge) {
-              badge.textContent = total;
-              badge.style.display = total > 0 ? 'inline-block' : 'none';
-            }
-          }
-        })
-        .catch(function (e) {
-          console.warn('[Badge] queue check error:', e);
-        });
-    }, 1500);
+    // Intentionally no-op to prevent background concurrency contention.
+    // Approval queue is loaded on-demand when user opens Approval tab or accesses via ?tab=approval
   },
 
   /**

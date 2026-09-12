@@ -967,42 +967,13 @@
       gasUrl: 'https://script.google.com/macros/s/AKfycbzem8n0H6PkCKaFugEEpt1aYhuH5G1MoFZDIQuArrnIg1oHV8sQJyyF1HCBF0KiOgxWyg/exec',
       _loadingTimer: null,
       _inFlightRequests: {},
-      _queueCheckDone: false,
 
       /**
-       * เรียกเมื่อ Checklist พร้อมทำงานแล้ว เพื่อเริ่มตรวจสอบคิวรออนุมัติในพื้นหลังอย่างปลอดภัย
-       * ป้องกันการชนกัน (Concurrency collision) กับ apiGetChecklistForm ในจังหวะเปิดแอปครั้งแรก
+       * onChecklistLoaded: จัดการหลัง Checklist โหลดเสร็จ (ไม่ดึงคิวอนุมัติเบื้องหลัง เพื่อป้องกันคำขอชนกัน)
        */
       onChecklistLoaded: function () {
-        var self = this;
-        if (self._queueCheckDone) return;
-        self._queueCheckDone = true;
-        if (!self.currentUser || !self.currentUser.line_uid) return;
-
-        setTimeout(function () {
-          var user = self.currentUser;
-          var now = new Date();
-          var currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-          self.callServer('apiGetApprovalQueue', user.line_uid, currentMonth, user.users_name)
-            .then(function (res) {
-              if (res && res.success && res.data) {
-                if (window.ApprovalModule) {
-                  ApprovalModule.cachedQueueData = res.data;
-                  ApprovalModule.lastLoadedMonth = currentMonth;
-                  ApprovalModule.applyQueueData_(res.data);
-                }
-                var total = (res.data.asL1 ? res.data.asL1.length : 0) + (res.data.asL2 ? res.data.asL2.length : 0);
-                var badge = document.getElementById('approvalQueueBadge');
-                if (badge) {
-                  badge.textContent = total;
-                  badge.style.display = total > 0 ? 'inline-block' : 'none';
-                }
-              }
-            })
-            .catch(function (e) {
-              console.warn('[Badge] queue check error:', e);
-            });
-        }, 1500);
+        // Intentionally no-op to prevent background concurrency contention.
+        // Approval queue is loaded on-demand when user opens Approval tab or accesses via ?tab=approval
       },
 
       init: function (onReady) {
@@ -1741,18 +1712,12 @@
                 self.updateActionButtons_(null, true);
                 self.updateProgress_();
               }
-              if (window.App && typeof window.App.onChecklistLoaded === 'function') {
-                window.App.onChecklistLoaded();
-              }
             })
             .catch(function (err) {
               console.warn('[Checklist] Get transaction error:', err);
               self.renderStatusBanner_(null, true, '');
               self.updateActionButtons_(null, true);
               self.updateProgress_();
-              if (window.App && typeof window.App.onChecklistLoaded === 'function') {
-                window.App.onChecklistLoaded();
-              }
             });
           return;
         }
@@ -1792,9 +1757,6 @@
                 self.renderProjectDropdown_(cached.projects);
               }
             }
-            if (window.App && typeof window.App.onChecklistLoaded === 'function') {
-              window.App.onChecklistLoaded();
-            }
           })
           .catch(function (err) {
             self._restoreRefreshBtn();
@@ -1806,9 +1768,6 @@
             }
             if (cached && cached.projects && cached.projects.length > 0) {
               self.renderProjectDropdown_(cached.projects);
-            }
-            if (window.App && typeof window.App.onChecklistLoaded === 'function') {
-              window.App.onChecklistLoaded();
             }
           });
       },
@@ -2225,6 +2184,7 @@
 
         var payload = {
           lineUid: App.currentUser.line_uid,
+          userName: (App.currentUser && App.currentUser.users_name) ? App.currentUser.users_name : '',
           transDate: transDate,
           project: project,
           approveProfile1: approver1,
@@ -2845,13 +2805,17 @@
 
     window.addEventListener('DOMContentLoaded', function () {
       App.init(function (user) {
-        ChecklistModule.init();
+        var urlParams = new URLSearchParams(window.location.search);
+        var tabFromQuery = urlParams.get('tab');
+        var hash = window.location.hash ? window.location.hash.replace('#', '') : '';
+        var initialTab = (tabFromQuery || hash || '').toLowerCase();
 
-        // Safety fallback: หากผ่านไป 10 วินาทีแล้วยังไม่มีการ trigger ให้เรียก onChecklistLoaded เอง
-        if (user && user.line_uid) {
-          setTimeout(function () {
-            if (App.onChecklistLoaded) App.onChecklistLoaded();
-          }, 10000);
+        if (initialTab === 'approval') {
+          console.log('[App] Starting directly in Approval Tab (?tab=approval)');
+          Navigation.switchTab('approval');
+        } else {
+          console.log('[App] Starting in Checklist Tab (default)');
+          Navigation.switchTab('checklist');
         }
       });
     });
