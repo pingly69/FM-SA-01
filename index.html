@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
-  <title>FM-SA-01 v1.0 | แบบตรวจความปลอดภัยประจำวัน & อนุมัติ</title>
+  <title>FM-SA-01 v1.0 |ตรวจเครื่องมือและอุปกรณ์</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
 
   <style>
     :root {
@@ -502,12 +505,35 @@
       box-shadow: var(--shadow-sm);
     }
 
-    .btn-primary { background: var(--primary); color: #FFFFFF; }
-    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); box-shadow: var(--shadow-md); }
-    .btn-success { background: var(--success); color: #FFFFFF; }
-    .btn-danger { background: var(--danger); color: #FFFFFF; }
-    .btn-secondary { background: var(--slate-200); color: var(--slate-700); }
-    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-primary {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #FFFFFF;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #FFFFFF;
+    }
+
+    .btn-secondary {
+      background: var(--slate-200);
+      color: var(--slate-700);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
 
     /* Approval Queue View */
     .queue-card {
@@ -534,15 +560,40 @@
       cursor: pointer;
     }
 
-    .queue-project { font-weight: 700; font-size: 1rem; color: var(--slate-900); }
-    .queue-date { font-size: 0.8rem; color: var(--slate-500); }
-    .queue-meta { font-size: 0.85rem; color: var(--slate-600); display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
-    .queue-actions { display: flex; gap: 8px; border-top: 1px solid var(--slate-100); padding-top: 12px; }
+    .queue-project {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--slate-900);
+    }
+
+    .queue-date {
+      font-size: 0.8rem;
+      color: var(--slate-500);
+    }
+
+    .queue-meta {
+      font-size: 0.85rem;
+      color: var(--slate-600);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .queue-actions {
+      display: flex;
+      gap: 8px;
+      border-top: 1px solid var(--slate-100);
+      padding-top: 12px;
+    }
 
     /* Modal */
     .modal-overlay {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: rgba(15, 23, 42, 0.65);
       backdrop-filter: blur(4px);
       z-index: 99;
@@ -555,7 +606,10 @@
       transition: opacity 0.2s ease;
     }
 
-    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
 
     .modal-box {
       background: #FFFFFF;
@@ -570,13 +624,23 @@
       overflow-y: auto;
     }
 
-    .modal-overlay.active .modal-box { transform: scale(1); }
-    .modal-title { font-size: 1.15rem; font-weight: 700; color: var(--slate-900); margin-bottom: 12px; }
+    .modal-overlay.active .modal-box {
+      transform: scale(1);
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 12px;
+    }
 
     /* Toast */
     .toast-container {
       position: fixed;
-      top: 20px; right: 20px; left: 20px;
+      top: 20px;
+      right: 20px;
+      left: 20px;
       max-width: 420px;
       margin: 0 auto;
       z-index: 100;
@@ -598,19 +662,40 @@
       pointer-events: auto;
     }
 
-    .toast.success { background: #065F46; border-left: 4px solid var(--success); }
-    .toast.error { background: #7F1D1D; border-left: 4px solid var(--danger); }
-    .toast.warning { background: #78350F; border-left: 4px solid var(--warning); }
+    .toast.success {
+      background: #065F46;
+      border-left: 4px solid var(--success);
+    }
+
+    .toast.error {
+      background: #7F1D1D;
+      border-left: 4px solid var(--danger);
+    }
+
+    .toast.warning {
+      background: #78350F;
+      border-left: 4px solid var(--warning);
+    }
 
     @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Loading Spinner */
     .loading-overlay {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(4px);
       z-index: 101;
@@ -626,7 +711,10 @@
       transition: opacity 0.2s ease;
     }
 
-    .loading-overlay.active { opacity: 1; pointer-events: auto; }
+    .loading-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
 
     .spinner {
       width: 44px;
@@ -638,10 +726,13 @@
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
+
 <body>
 
   <!-- App Header -->
@@ -649,7 +740,8 @@
     <div class="header-top">
       <div class="brand-title">
         <span>🛡️ FM-SA-01</span>
-        <span class="brand-badge" style="font-size: 0.70rem; padding: 2px 7px; background: rgba(59, 130, 246, 0.25); border: 1px solid rgba(147, 197, 253, 0.4); color: #93C5FD; border-radius: 9999px;">v1.0</span>
+        <span class="brand-badge"
+          style="font-size: 0.70rem; padding: 2px 7px; background: rgba(59, 130, 246, 0.25); border: 1px solid rgba(147, 197, 253, 0.4); color: #93C5FD; border-radius: 9999px;">v1.0</span>
       </div>
       <div class="user-profile">
         <div id="headerUserAvatar" class="user-avatar">?</div>
@@ -679,8 +771,8 @@
         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span>📋 ข้อมูลการตรวจสอบ</span>
-            <button type="button" id="btnRefreshMasterCache" onclick="ChecklistModule.forceRefreshCache()" 
-              title="กดเพื่อดึงรายชื่อโครงการและผู้อนุมัติล่าสุดจากเซิร์ฟเวอร์ (ระบบหน่วงเวลา 10 นาทีป้องกันเซิร์ฟเวอร์ขัดข้อง)" 
+            <button type="button" id="btnRefreshMasterCache" onclick="ChecklistModule.forceRefreshCache()"
+              title="กดเพื่อดึงรายชื่อโครงการและผู้อนุมัติล่าสุดจากเซิร์ฟเวอร์ (ระบบหน่วงเวลา 10 นาทีป้องกันเซิร์ฟเวอร์ขัดข้อง)"
               style="background: #F1F5F9; border: 1px solid #CBD5E1; color: #475569; font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-weight: 500;">
               🔄 อัปเดตข้อมูล
             </button>
@@ -690,7 +782,8 @@
 
         <div class="form-group">
           <label class="form-label">วันที่ตรวจสอบ <span class="required">*</span></label>
-          <input type="date" id="transDateInput" class="form-control" onchange="ChecklistModule.onDateChange(this.value)">
+          <input type="date" id="transDateInput" class="form-control"
+            onchange="ChecklistModule.onDateChange(this.value)">
         </div>
 
         <div class="form-group">
@@ -701,7 +794,8 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label" id="labelApprover1">ผู้อนุมัติระดับ 1 <span id="tagApprover1" style="font-weight: normal; color: #475569;"></span> <span class="required">*</span></label>
+          <label class="form-label" id="labelApprover1">ผู้อนุมัติระดับ 1 <span id="tagApprover1"
+              style="font-weight: normal; color: #475569;"></span> <span class="required">*</span></label>
           <select id="approver1Select" class="form-control">
             <option value="">-- กำลังโหลดรายชื่อผู้อนุมัติ... --</option>
           </select>
@@ -724,11 +818,17 @@
     <!-- Approval Queue View -->
     <div id="approvalView" class="view-panel" style="display: none;">
       <div id="approverSubtabsContainer" style="display: flex; gap: 8px; margin-bottom: 14px;">
-        <button id="subtabL1Btn" class="btn btn-primary" style="flex: 1; padding: 10px;" onclick="ApprovalModule.switchSubtab('L1')">
-          ⏳ รออนุมัติระดับ 1 <span id="subtabL1Tag" style="font-weight: normal; font-size: 0.8em; opacity: 0.85;"></span> <span id="badgeL1Count" class="badge-counter" style="display:none;">0</span>
+        <button id="subtabL1Btn" class="btn btn-primary" style="flex: 1; padding: 10px;"
+          onclick="ApprovalModule.switchSubtab('L1')">
+          ⏳ รออนุมัติระดับ 1 <span id="subtabL1Tag"
+            style="font-weight: normal; font-size: 0.8em; opacity: 0.85;"></span> <span id="badgeL1Count"
+            class="badge-counter" style="display:none;">0</span>
         </button>
-        <button id="subtabL2Btn" class="btn btn-secondary" style="flex: 1; padding: 10px;" onclick="ApprovalModule.switchSubtab('L2')">
-          ⏳ รออนุมัติระดับ 2 <span id="subtabL2Tag" style="font-weight: normal; font-size: 0.8em; opacity: 0.85;"></span> <span id="badgeL2Count" class="badge-counter" style="display:none;">0</span>
+        <button id="subtabL2Btn" class="btn btn-secondary" style="flex: 1; padding: 10px;"
+          onclick="ApprovalModule.switchSubtab('L2')">
+          ⏳ รออนุมัติระดับ 2 <span id="subtabL2Tag"
+            style="font-weight: normal; font-size: 0.8em; opacity: 0.85;"></span> <span id="badgeL2Count"
+            class="badge-counter" style="display:none;">0</span>
         </button>
       </div>
 
@@ -736,12 +836,16 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
           <div id="monthFilterContainer" style="display: flex; align-items: center; gap: 8px;">
             <label class="form-label" style="margin: 0; font-size: 0.82rem;">ประจำเดือน:</label>
-            <input type="month" id="monthFilterInput" class="form-control" style="padding: 6px 10px; width: auto; font-size: 0.85rem;" onchange="ApprovalModule.onMonthChange(this.value)">
+            <input type="month" id="monthFilterInput" class="form-control"
+              style="padding: 6px 10px; width: auto; font-size: 0.85rem;"
+              onchange="ApprovalModule.onMonthChange(this.value)">
           </div>
 
           <div style="display: flex; align-items: center; gap: 12px;">
-            <label style="font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-              <input type="checkbox" id="selectAllCheckbox" class="queue-checkbox" onchange="ApprovalModule.toggleSelectAll(this.checked)">
+            <label
+              style="font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+              <input type="checkbox" id="selectAllCheckbox" class="queue-checkbox"
+                onchange="ApprovalModule.toggleSelectAll(this.checked)">
               เลือกทั้งหมด
             </label>
           </div>
@@ -755,10 +859,12 @@
   <!-- Sticky Bottom Bar for Checklist Entry -->
   <div id="checklistBottomBar" class="bottom-bar">
     <div class="bottom-bar-inner" style="display: flex; gap: 10px;">
-      <button id="btnDeleteChecklist" type="button" class="btn" onclick="ChecklistModule.deleteCurrentChecklist()" style="display: none; background: #FEE2E2; color: #B91C1C; border: 1px solid #FCA5A5; font-weight: 600; flex: 0 0 auto; padding: 12px 14px; border-radius: var(--radius-md); font-size: 0.92rem; cursor: pointer;">
+      <button id="btnDeleteChecklist" type="button" class="btn" onclick="ChecklistModule.deleteCurrentChecklist()"
+        style="display: none; background: #FEE2E2; color: #B91C1C; border: 1px solid #FCA5A5; font-weight: 600; flex: 0 0 auto; padding: 12px 14px; border-radius: var(--radius-md); font-size: 0.92rem; cursor: pointer;">
         🗑️ ลบ
       </button>
-      <button id="btnSaveChecklist" class="btn btn-primary" onclick="ChecklistModule.submitChecklist()" style="flex: 1;">
+      <button id="btnSaveChecklist" class="btn btn-primary" onclick="ChecklistModule.submitChecklist()"
+        style="flex: 1;">
         💾 บันทึกผลการตรวจสอบ
       </button>
     </div>
@@ -779,13 +885,16 @@
   <!-- Modal: เลือกผู้อนุมัติระดับ 2 -->
   <div id="modalSelectL2" class="modal-overlay">
     <div class="modal-box">
-      <div class="modal-title">👤 เลือกผู้อนุมัติระดับ 2 <span id="modalL2Tag" style="font-weight: normal; color: #475569;"></span></div>
+      <div class="modal-title">👤 เลือกผู้อนุมัติระดับ 2 <span id="modalL2Tag"
+          style="font-weight: normal; color: #475569;"></span></div>
       <p style="font-size: 0.88rem; color: #64748B; margin-bottom: 14px;">
-        กรุณาเลือกผู้มีอำนาจอนุมัติระดับ 2 เพื่อส่งต่อรายการที่เลือก (<span class="selected-count">0</span> รายการ) ไปพิจารณาขั้นสุดท้าย
+        กรุณาเลือกผู้มีอำนาจอนุมัติระดับ 2 เพื่อส่งต่อรายการที่เลือก (<span class="selected-count">0</span> รายการ)
+        ไปพิจารณาขั้นสุดท้าย
       </p>
 
       <div class="form-group">
-        <label class="form-label" id="modalLabelL2">ผู้อนุมัติระดับ 2 <span id="modalLabelL2Tag" style="font-weight: normal; color: #475569;"></span> <span class="required">*</span></label>
+        <label class="form-label" id="modalLabelL2">ผู้อนุมัติระดับ 2 <span id="modalLabelL2Tag"
+            style="font-weight: normal; color: #475569;"></span> <span class="required">*</span></label>
         <select id="modalL2Select" class="form-control">
           <option value="">-- กรุณาเลือกผู้อนุมัติระดับ 2 --</option>
         </select>
@@ -808,7 +917,8 @@
 
       <div class="form-group">
         <label class="form-label">เหตุผลที่ไม่อนุมัติ / สิ่งที่ต้องแก้ไข <span class="required">*</span></label>
-        <textarea id="modalRejectReasonText" class="form-control" rows="3" placeholder="ระบุรายละเอียดเพื่อให้ผู้ตรวจนำไปปรับปรุงแก้ไข..."></textarea>
+        <textarea id="modalRejectReasonText" class="form-control" rows="3"
+          placeholder="ระบุรายละเอียดเพื่อให้ผู้ตรวจนำไปปรับปรุงแก้ไข..."></textarea>
       </div>
 
       <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -823,10 +933,13 @@
     <div class="modal-box" style="max-width: 600px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <div class="modal-title" style="margin: 0;">📄 รายละเอียดผลการตรวจสอบ</div>
-        <button style="border:none; background:none; font-size: 1.2rem; cursor: pointer;" onclick="ApprovalModule.closeModals()">✕</button>
+        <button style="border:none; background:none; font-size: 1.2rem; cursor: pointer;"
+          onclick="ApprovalModule.closeModals()">✕</button>
       </div>
 
-      <div id="detailMetaContent" style="font-size: 0.88rem; background: #F8FAFC; padding: 12px; border-radius: 8px; margin-bottom: 14px; border: 1px solid #E2E8F0;"></div>
+      <div id="detailMetaContent"
+        style="font-size: 0.88rem; background: #F8FAFC; padding: 12px; border-radius: 8px; margin-bottom: 14px; border: 1px solid #E2E8F0;">
+      </div>
       <div id="detailAnswersContent" style="max-height: 50vh; overflow-y: auto;"></div>
 
       <div style="margin-top: 16px; text-align: right;">
@@ -853,8 +966,46 @@
       screenTag: 'SA01',
       gasUrl: 'https://script.google.com/macros/s/AKfycbzem8n0H6PkCKaFugEEpt1aYhuH5G1MoFZDIQuArrnIg1oHV8sQJyyF1HCBF0KiOgxWyg/exec',
       _loadingTimer: null,
+      _inFlightRequests: {},
+      _queueCheckDone: false,
 
-      init: function(onReady) {
+      /**
+       * เรียกเมื่อ Checklist พร้อมทำงานแล้ว เพื่อเริ่มตรวจสอบคิวรออนุมัติในพื้นหลังอย่างปลอดภัย
+       * ป้องกันการชนกัน (Concurrency collision) กับ apiGetChecklistForm ในจังหวะเปิดแอปครั้งแรก
+       */
+      onChecklistLoaded: function () {
+        var self = this;
+        if (self._queueCheckDone) return;
+        self._queueCheckDone = true;
+        if (!self.currentUser || !self.currentUser.line_uid) return;
+
+        setTimeout(function () {
+          var user = self.currentUser;
+          var now = new Date();
+          var currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+          self.callServer('apiGetApprovalQueue', user.line_uid, currentMonth, user.users_name)
+            .then(function (res) {
+              if (res && res.success && res.data) {
+                if (window.ApprovalModule) {
+                  ApprovalModule.cachedQueueData = res.data;
+                  ApprovalModule.lastLoadedMonth = currentMonth;
+                  ApprovalModule.applyQueueData_(res.data);
+                }
+                var total = (res.data.asL1 ? res.data.asL1.length : 0) + (res.data.asL2 ? res.data.asL2.length : 0);
+                var badge = document.getElementById('approvalQueueBadge');
+                if (badge) {
+                  badge.textContent = total;
+                  badge.style.display = total > 0 ? 'inline-block' : 'none';
+                }
+              }
+            })
+            .catch(function (e) {
+              console.warn('[Badge] queue check error:', e);
+            });
+        }, 1500);
+      },
+
+      init: function (onReady) {
         var self = this;
         self.showLoading('กำลังเชื่อมต่อระบบ LINE...');
 
@@ -881,7 +1032,7 @@
         }
 
         liff.init({ liffId: self.liffId })
-          .then(function() {
+          .then(function () {
             // หากยังไม่ได้ล็อกอิน
             if (!liff.isLoggedIn()) {
               // ตรวจสอบว่ากำลังทำงานอยู่ใน iframe (เช่น บน Google Apps Script Web App) หรือไม่
@@ -927,7 +1078,7 @@
                   var base64Url = rawToken.split('.')[1];
                   if (base64Url) {
                     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
                       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
                     }).join(''));
                     var parsed = JSON.parse(jsonPayload);
@@ -953,20 +1104,20 @@
             // Fallback: หากดึงจาก ID Token ไม่ได้ ค่อยเรียก liff.getProfile() ผ่าน Network ตามเดิม
             console.log('[App] Fallback to liff.getProfile()...');
             liff.getProfile()
-              .then(function(profile) {
+              .then(function (profile) {
                 if (profile && profile.userId) {
                   self.verifyUserOnServer_(profile.userId, profile.displayName, onReady);
                 } else {
                   throw new Error('ไม่พบข้อมูลผู้ใช้งานจาก LINE');
                 }
               })
-              .catch(function(err) {
+              .catch(function (err) {
                 console.error('[App] Failed to get LINE profile:', err);
                 self.hideLoading();
                 self.showAccessDeniedScreen('ไม่สามารถดึงข้อมูลโปรไฟล์ LINE ได้ กรุณาลองใหม่อีกครั้ง');
               });
           })
-          .catch(function(err) {
+          .catch(function (err) {
             console.error('[App] LIFF init error:', err);
             self.hideLoading();
             self.showAccessDeniedScreen(
@@ -977,33 +1128,65 @@
           });
       },
 
-      verifyUserOnServer_: function(lineUid, displayName, callback) {
+      verifyUserOnServer_: function (lineUid, displayName, callback) {
         var self = this;
-        var cacheKey = 'fmsa01_auth_' + lineUid;
+        var tag = (self.screenTag || 'SA01').trim();
+        var cacheKey = 'FM_' + tag + '_AUTH_' + lineUid;
+        var cacheTimeKey = 'FM_' + tag + '_AUTH_TIME_' + lineUid;
+        var AUTH_TTL = 24 * 60 * 60 * 1000; // 24 ชั่วโมง
 
-        // ดึงสิทธิ์จาก sessionStorage ก่อน เพื่อให้เปิดหน้าจอได้ทันที (Zero Wait Time)
+        // ดึงสิทธิ์จาก localStorage/sessionStorage ก่อน เพื่อให้เปิดหน้าจอได้ทันที (Zero Wait Time < 0.05s)
         var cached = null;
+        var cachedTime = 0;
         try {
-          var raw = sessionStorage.getItem(cacheKey);
+          var raw = localStorage.getItem(cacheKey) ||
+            localStorage.getItem('fmsa01_auth_' + lineUid) ||
+            sessionStorage.getItem(cacheKey);
+          var rawTime = localStorage.getItem(cacheTimeKey) ||
+            localStorage.getItem('fmsa01_auth_time_' + lineUid);
           if (raw) cached = JSON.parse(raw);
-        } catch (e) {}
+          if (rawTime) cachedTime = parseInt(rawTime, 10) || 0;
+        } catch (e) { }
 
-        if (cached && cached.users_name) {
+        var isCacheValid = cached && cached.users_name && (Date.now() - cachedTime < AUTH_TTL);
+
+        if (isCacheValid) {
+          console.log('[App] Fast-path Auth hit from localStorage for UID:', lineUid);
           self.currentUser = cached;
           self.renderUserProfileHeader_();
           self.hideLoading();
           if (callback) callback(self.currentUser);
+
+          // Background revalidation (Stale-While-Revalidate) หากแคชเกิน 1 ชั่วโมง แอบ sync เงียบๆ ด้านหลัง
+          if (Date.now() - cachedTime > 60 * 60 * 1000) {
+            self.callServer('apiVerifyUser', lineUid).then(function (res) {
+              if (res && res.success && res.data) {
+                self.currentUser = res.data;
+                try {
+                  localStorage.setItem(cacheKey, JSON.stringify(res.data));
+                  localStorage.setItem(cacheTimeKey, String(Date.now()));
+                } catch (e) { }
+                self.renderUserProfileHeader_();
+              }
+            }).catch(function (err) {
+              console.warn('[App] Background auth revalidation error (ignored):', err);
+            });
+          }
           return;
         }
 
         self.showLoading('กำลังตรวจสอบสิทธิ์การใช้งาน...');
 
         self.callServer('apiVerifyUser', lineUid)
-          .then(function(res) {
+          .then(function (res) {
             self.hideLoading();
             if (res && res.success && res.data) {
               self.currentUser = res.data;
-              try { sessionStorage.setItem(cacheKey, JSON.stringify(res.data)); } catch (e) {}
+              try {
+                localStorage.setItem(cacheKey, JSON.stringify(res.data));
+                localStorage.setItem(cacheTimeKey, String(Date.now()));
+                sessionStorage.setItem(cacheKey, JSON.stringify(res.data));
+              } catch (e) { }
               self.renderUserProfileHeader_();
               if (callback) callback(self.currentUser);
             } else {
@@ -1011,13 +1194,21 @@
               self.showAccessDeniedScreen(msg);
             }
           })
-          .catch(function(err) {
+          .catch(function (err) {
             self.hideLoading();
+            // กรณีเชื่อมต่อเซิร์ฟเวอร์ไม่ได้หรือ Timeout แต่มีแคชเก่าในเครื่อง ให้กู้คืนมาใช้งานต่อได้เลย
+            if (cached && cached.users_name) {
+              console.warn('[App] Server call failed, using expired cache as fallback');
+              self.currentUser = cached;
+              self.renderUserProfileHeader_();
+              if (callback) callback(self.currentUser);
+              return;
+            }
             self.showAccessDeniedScreen('เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์: ' + (err.message || err));
           });
       },
 
-      renderUserProfileHeader_: function() {
+      renderUserProfileHeader_: function () {
         var u = this.currentUser;
         if (!u) return;
         var nameEl = document.getElementById('headerUserName');
@@ -1026,29 +1217,29 @@
         if (avatarEl) avatarEl.textContent = (u.users_name || 'U').charAt(0);
       },
 
-      showAccessDeniedScreen: function(msg) {
+      showAccessDeniedScreen: function (msg) {
         var container = document.getElementById('mainContentArea');
         if (container) {
-          container.innerHTML = 
+          container.innerHTML =
             '<div class="card" style="text-align:center; padding: 40px 20px; margin-top: 30px;">' +
-              '<div style="font-size: 3rem; margin-bottom: 12px;">🚫</div>' +
-              '<h2 style="color: #EF4444; margin-bottom: 10px;">การเข้าถึงถูกปฏิเสธ</h2>' +
-              '<p style="color: #64748B; font-size: 0.95rem; margin-bottom: 20px;">' + (msg || 'ท่านไม่มีสิทธิ์เข้าใช้งานระบบ SA03') + '</p>' +
-              '<button class="btn btn-secondary" onclick="location.reload()" style="max-width: 200px; margin: 0 auto;">ลองใหม่อีกครั้ง</button>' +
+            '<div style="font-size: 3rem; margin-bottom: 12px;">🚫</div>' +
+            '<h2 style="color: #EF4444; margin-bottom: 10px;">การเข้าถึงถูกปฏิเสธ</h2>' +
+            '<p style="color: #64748B; font-size: 0.95rem; margin-bottom: 20px;">' + (msg || ('ท่านไม่มีสิทธิ์เข้าใช้งานระบบ ' + (self.screenTag || 'SA01'))) + '</p>' +
+            '<button class="btn btn-secondary" onclick="location.reload()" style="max-width: 200px; margin: 0 auto;">ลองใหม่อีกครั้ง</button>' +
             '</div>';
         }
       },
 
-      callServer: function(fnName) {
+      callServer: function (fnName) {
         var self = this;
         var args = Array.prototype.slice.call(arguments, 1);
 
         if (typeof google !== 'undefined' && google.script && google.script.run) {
-          return new Promise(function(resolve, reject) {
+          return new Promise(function (resolve, reject) {
             try {
               var runner = google.script.run
                 .withSuccessHandler(resolve)
-                .withFailureHandler(function(err) {
+                .withFailureHandler(function (err) {
                   console.error('[GAS Error]', fnName, err);
                   reject(err);
                 });
@@ -1070,8 +1261,11 @@
         }
       },
 
-      callGasApi_: function(fnName, args) {
+      callGasApi_: function (fnName, args, retryCount) {
         var self = this;
+        var maxRetries = 2;
+        var currentRetry = retryCount || 0;
+
         var action = fnName.replace(/^api/, '');
         action = action.charAt(0).toLowerCase() + action.slice(1);
 
@@ -1087,7 +1281,8 @@
           body.transDate = args[1];
         } else if (action === 'getApprovalQueue') {
           body.lineUid = args[0];
-          body.monthFilter = args[1];
+          body.monthFilter = args[1] || '';
+          body.approverName = args[2] || (self.currentUser ? self.currentUser.users_name : '');
         } else if (action === 'deleteChecklist') {
           var delPayload = args[0] || {};
           if (typeof delPayload === 'object') {
@@ -1104,26 +1299,65 @@
           }
         }
 
-        return fetch(self.gasUrl, {
+        // In-flight Request Deduplication: ป้องกันการยิง request เดียวกันซ้อนกันไปติด lock บน GAS
+        var inFlightKey = (action === 'getApprovalQueue') ? ('getApprovalQueue_' + (body.lineUid || '') + '_' + (body.monthFilter || '')) : null;
+        if (inFlightKey && self._inFlightRequests && self._inFlightRequests[inFlightKey]) {
+          console.log('[App] Reusing in-flight request for ' + inFlightKey);
+          return self._inFlightRequests[inFlightKey];
+        }
+
+        var reqPromise = fetch(self.gasUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'text/plain;charset=utf-8'
           },
           body: JSON.stringify(body)
         })
-        .then(function(res) {
-          if (!res.ok) {
-            throw new Error('HTTP Status ' + res.status);
-          }
-          return res.json();
-        })
-        .catch(function(err) {
-          console.error('[App] GAS API Call Error:', err);
-          throw new Error('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้: ' + err.message);
-        });
+          .then(function (res) {
+            if (!res.ok) {
+              if (currentRetry < maxRetries && (res.status === 404 || res.status === 500 || res.status === 502 || res.status === 503)) {
+                console.warn('[App] GAS API call (' + fnName + ') returned HTTP ' + res.status + ', retrying (' + (currentRetry + 1) + '/' + maxRetries + ')...');
+                return new Promise(function (resolve) {
+                  setTimeout(resolve, 1500);
+                }).then(function () {
+                  return self.callGasApi_(fnName, args, currentRetry + 1);
+                });
+              }
+              throw new Error('HTTP Status ' + res.status);
+            }
+            return res.json();
+          })
+          .then(function (json) {
+            if (inFlightKey && self._inFlightRequests) {
+              delete self._inFlightRequests[inFlightKey];
+            }
+            return json;
+          })
+          .catch(function (err) {
+            if (inFlightKey && self._inFlightRequests) {
+              delete self._inFlightRequests[inFlightKey];
+            }
+            var errMsg = (err && err.message) ? err.message : String(err);
+            if (currentRetry < maxRetries && (errMsg.indexOf('Failed to fetch') !== -1 || errMsg.indexOf('NetworkError') !== -1 || errMsg.indexOf('HTTP Status 404') !== -1)) {
+              console.warn('[App] Network/Proxy error (' + fnName + '), retrying (' + (currentRetry + 1) + '/' + maxRetries + ')...');
+              return new Promise(function (resolve) {
+                setTimeout(resolve, 1500);
+              }).then(function () {
+                return self.callGasApi_(fnName, args, currentRetry + 1);
+              });
+            }
+            console.error('[App] GAS API Call Error:', err);
+            throw new Error('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้: ' + errMsg);
+          });
+
+        if (inFlightKey && self._inFlightRequests) {
+          self._inFlightRequests[inFlightKey] = reqPromise;
+        }
+
+        return reqPromise;
       },
 
-      showLoading: function(text) {
+      showLoading: function (text) {
         var self = this;
         var overlay = document.getElementById('loadingOverlay');
         var textEl = document.getElementById('loadingText');
@@ -1132,7 +1366,7 @@
 
         // Safety timeout ป้องกันหน้าจอหมุนค้างเกิน 25 วินาที
         if (self._loadingTimer) clearTimeout(self._loadingTimer);
-        self._loadingTimer = setTimeout(function() {
+        self._loadingTimer = setTimeout(function () {
           if (overlay && overlay.classList.contains('active')) {
             self.hideLoading();
             self.showToast('การโหลดใช้เวลานานกว่าปกติ กรุณาลองใหม่อีกครั้ง', 'warning');
@@ -1140,7 +1374,7 @@
         }, 25000);
       },
 
-      hideLoading: function() {
+      hideLoading: function () {
         var self = this;
         if (self._loadingTimer) {
           clearTimeout(self._loadingTimer);
@@ -1150,7 +1384,7 @@
         if (overlay) overlay.classList.remove('active');
       },
 
-      showToast: function(message, type) {
+      showToast: function (message, type) {
         var container = document.getElementById('toastContainer');
         if (!container) return;
 
@@ -1160,10 +1394,10 @@
         toast.innerHTML = '<span>' + icon + '</span><span>' + message + '</span>';
         container.appendChild(toast);
 
-        setTimeout(function() {
+        setTimeout(function () {
           toast.style.opacity = '0';
           toast.style.transition = 'opacity 0.3s';
-          setTimeout(function() {
+          setTimeout(function () {
             if (toast.parentNode) toast.parentNode.removeChild(toast);
           }, 300);
         }, 4000);
@@ -1175,14 +1409,14 @@
       answers: {},
       totalQuestionsCount: 0,
 
-      init: function() {
+      init: function () {
         var today = this.getTodayString_();
         var dateInput = document.getElementById('transDateInput');
         if (dateInput) dateInput.value = today;
         this.loadForm(today);
       },
 
-      getTodayString_: function() {
+      getTodayString_: function () {
         var now = new Date();
         var y = now.getFullYear();
         var m = String(now.getMonth() + 1).padStart(2, '0');
@@ -1194,7 +1428,7 @@
        * เมื่อเปลี่ยนวันที่:
        * ใช้ Fast Track ดึงเฉพาะ Transaction ของวันนั้น โดยไม่ต้องโหลดชุดคำถามและโครงการใหม่
        */
-      onDateChange: function(newDate) {
+      onDateChange: function (newDate) {
         if (!newDate) return;
         var self = this;
         if (!self.currentData || !self.currentData.questions || self.currentData.questions.length === 0) {
@@ -1202,23 +1436,21 @@
           return;
         }
 
-        App.showLoading('กำลังตรวจสอบข้อมูลของวันที่ ' + newDate + '...');
+        self.showCheckingStatus_(newDate);
         App.callServer('apiGetTransactionByDate', App.currentUser.line_uid, newDate)
-          .then(function(res) {
-            App.hideLoading();
+          .then(function (res) {
             if (res && res.success && res.data) {
               self.applyTransactionUpdate_(res.data);
             } else {
               self.loadForm(newDate);
             }
           })
-          .catch(function(err) {
-            App.hideLoading();
+          .catch(function (err) {
             self.loadForm(newDate);
           });
       },
 
-      applyTransactionUpdate_: function(txData) {
+      applyTransactionUpdate_: function (txData) {
         var self = this;
         var tx = txData.transaction;
         var isEditable = txData.isEditable;
@@ -1273,7 +1505,7 @@
         self.updateProgress_();
       },
 
-      getCacheKeys_: function() {
+      getCacheKeys_: function () {
         var tag = (window.App && window.App.screenTag) ? String(window.App.screenTag).trim() : 'SA01';
         return {
           QUESTIONS: 'FM_' + tag + '_LOCAL_QUESTIONS',
@@ -1285,7 +1517,7 @@
       },
       CACHE_TTL_MS: 24 * 60 * 60 * 1000, // 24 ชั่วโมง (24 Hours)
 
-      getLocalCache_: function() {
+      getLocalCache_: function () {
         try {
           var keys = this.getCacheKeys_();
           var timeStr = localStorage.getItem(keys.TIME);
@@ -1319,7 +1551,7 @@
         }
       },
 
-      setLocalCache_: function(questions, projects, approvers, approveTagL1) {
+      setLocalCache_: function (questions, projects, approvers, approveTagL1) {
         try {
           var keys = this.getCacheKeys_();
           if (Array.isArray(questions) && questions.length > 0) {
@@ -1340,16 +1572,17 @@
         }
       },
 
-      clearLocalCache_: function() {
+      clearLocalCache_: function () {
         try {
           var keys = this.getCacheKeys_();
-          localStorage.removeItem(keys.QUESTIONS);
+          // เคลียร์เฉพาะโครงการและผู้อนุมัติ (คงคำถามและ Auth ไว้เพื่อความเร็วและป้องกันการยิงเซิร์ฟเวอร์หนักเกินจำเป็น)
           localStorage.removeItem(keys.PROJECTS);
           localStorage.removeItem(keys.APPROVERS);
           localStorage.removeItem(keys.APPROVER_TAG);
           localStorage.removeItem(keys.TIME);
+
           // เคลียร์คีย์เวอร์ชันเดิม (ถ้ามี)
-          localStorage.removeItem('FMSA03_LOCAL_QUESTIONS');
+          localStorage.removeItem('CENTRAL_SITE_PROJECTS');
           localStorage.removeItem('FMSA03_LOCAL_PROJECTS');
           localStorage.removeItem('FMSA03_LOCAL_APPROVERS');
           localStorage.removeItem('FMSA03_LOCAL_CACHE_TIME');
@@ -1358,8 +1591,16 @@
         }
       },
 
-      forceRefreshCache: function() {
+      forceRefreshCache: function () {
         var self = this;
+        var btn = document.getElementById('btnRefreshMasterCache');
+        if (btn && btn.disabled) return;
+        if (btn) {
+          btn.disabled = true;
+          btn.setAttribute('data-original-html', btn.innerHTML);
+          btn.innerHTML = '⏳ กำลังอัปเดต...';
+        }
+
         self.clearLocalCache_();
         App.showToast('กำลังดึงข้อมูลโครงการและผู้อนุมัติล่าสุดจากเซิร์ฟเวอร์...', 'info');
         var dateInput = document.getElementById('transDateInput');
@@ -1367,15 +1608,25 @@
         self.loadForm(targetDate, true);
       },
 
-      renderProjectDropdown_: function(projects, selectedProject, isEditable) {
+      _restoreRefreshBtn: function () {
+        var btn = document.getElementById('btnRefreshMasterCache');
+        if (btn) {
+          btn.disabled = false;
+          var orig = btn.getAttribute('data-original-html');
+          if (orig) btn.innerHTML = orig;
+          else btn.innerHTML = '🔄 อัปเดตข้อมูล';
+        }
+      },
+
+      renderProjectDropdown_: function (projects, selectedProject, isEditable) {
         var pSelect = document.getElementById('projectSelect');
         if (!pSelect) return;
-        var currentVal = (selectedProject !== undefined && selectedProject !== null && selectedProject !== '') 
-          ? selectedProject 
+        var currentVal = (selectedProject !== undefined && selectedProject !== null && selectedProject !== '')
+          ? selectedProject
           : pSelect.value;
 
         pSelect.innerHTML = '<option value="">-- กรุณาเลือกโครงการ --</option>';
-        (projects || []).forEach(function(p) {
+        (projects || []).forEach(function (p) {
           var opt = document.createElement('option');
           opt.value = p;
           opt.textContent = p;
@@ -1388,15 +1639,15 @@
         }
       },
 
-      renderApproverDropdown_: function(approvers, selectedApprover, isEditable) {
+      renderApproverDropdown_: function (approvers, selectedApprover, isEditable) {
         var aSelect = document.getElementById('approver1Select');
         if (!aSelect) return;
-        var currentVal = (selectedApprover !== undefined && selectedApprover !== null && selectedApprover !== '') 
-          ? selectedApprover 
+        var currentVal = (selectedApprover !== undefined && selectedApprover !== null && selectedApprover !== '')
+          ? selectedApprover
           : aSelect.value;
 
         aSelect.innerHTML = '<option value="">-- กรุณาเลือกผู้อนุมัติระดับ 1 --</option>';
-        (approvers || []).forEach(function(apv) {
+        (approvers || []).forEach(function (apv) {
           var opt = document.createElement('option');
           opt.value = apv.users_name;
           opt.textContent = apv.users_name + (apv.emp_no ? ' (' + apv.emp_no + ')' : '');
@@ -1409,14 +1660,35 @@
         }
       },
 
-      renderApproverTag_: function(tag) {
+      renderApproverTag_: function (tag) {
         var tagEl = document.getElementById('tagApprover1');
         if (tagEl) {
           tagEl.textContent = tag ? '(' + tag + ')' : '';
         }
       },
 
-      loadForm: function(transDate, isForceRefresh) {
+      /**
+       * แสดงป้ายสถานะแจ้งเตือนว่ากำลังตรวจสอบข้อมูลรายการของวันนั้นจากเซิร์ฟเวอร์
+       */
+      showCheckingStatus_: function (transDate) {
+        var banner = document.getElementById('statusNotice');
+        var badge = document.getElementById('transStatusBadge');
+        if (badge) {
+          badge.textContent = 'กำลังตรวจสอบ...';
+          badge.style.background = '#FEF3C7';
+          badge.style.color = '#B45309';
+        }
+        if (banner) {
+          banner.className = 'status-banner pending';
+          banner.innerHTML = '<div style="display:flex; align-items:center; gap:8px;">' +
+            '<span style="display:inline-block; width:13px; height:13px; border:2px solid #D97706; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite; flex-shrink:0;"></span>' +
+            '<span>กำลังตรวจสอบข้อมูลรายการของวันที่ ' + (transDate || '') + ' จากเซิร์ฟเวอร์...</span>' +
+            '</div>';
+          banner.style.display = 'flex';
+        }
+      },
+
+      loadForm: function (transDate, isForceRefresh) {
         var self = this;
         if (!App.currentUser) return;
 
@@ -1424,6 +1696,17 @@
 
         // Fast Path: เรนเดอร์โครงการ, ผู้อนุมัติ, ป้ายกำกับผู้อนุมัติ และคำถามจาก Local Storage ทันที (< 0.05 วินาที)
         if (cached) {
+          self.currentData = {
+            questions: cached.questions,
+            projects: cached.projects,
+            l1Approvers: cached.approvers,
+            approveTagL1: cached.approveTagL1,
+            transDate: transDate,
+            transaction: null,
+            isEditable: true,
+            lockReason: ''
+          };
+
           if (cached.approveTagL1) {
             self.renderApproverTag_(cached.approveTagL1);
           }
@@ -1439,14 +1722,47 @@
           }
         }
 
-        if (!cached || isForceRefresh) {
-          App.showLoading(isForceRefresh ? 'กำลังอัปเดตข้อมูลล่าสุดจากเซิร์ฟเวอร์...' : 'กำลังโหลดแบบฟอร์มตรวจสอบ...');
-        }
+        // แสดงป้ายแจ้งว่ากำลังค้นหารายการของวันนี้จากเซิร์ฟเวอร์ (Google Sheet)
+        self.showCheckingStatus_(transDate);
 
         self.answers = {};
 
+        // กรณีที่มี Cache ในเครื่องอยู่แล้ว และไม่ใช่การกดปุ่ม Force Refresh:
+        // ให้ดึงเฉพาะ Transaction ของวันนั้น (apiGetTransactionByDate) อ่านตรงจาก Google Sheet ใน ~1.5 วินาที
+        // ไม่ต้องยิง Central API เพื่อขอรายชื่อโครงการและผู้อนุมัติซ้ำซ้อน
+        if (cached && !isForceRefresh) {
+          App.callServer('apiGetTransactionByDate', App.currentUser.line_uid, transDate)
+            .then(function (res) {
+              if (res && res.success && res.data) {
+                self.applyTransactionUpdate_(res.data);
+              } else {
+                // หากยังไม่มีรายการในวันนี้ ให้แสดงสถานะสร้างใหม่พร้อมให้กรอก
+                self.renderStatusBanner_(null, true, '');
+                self.updateActionButtons_(null, true);
+                self.updateProgress_();
+              }
+              if (window.App && typeof window.App.onChecklistLoaded === 'function') {
+                window.App.onChecklistLoaded();
+              }
+            })
+            .catch(function (err) {
+              console.warn('[Checklist] Get transaction error:', err);
+              self.renderStatusBanner_(null, true, '');
+              self.updateActionButtons_(null, true);
+              self.updateProgress_();
+              if (window.App && typeof window.App.onChecklistLoaded === 'function') {
+                window.App.onChecklistLoaded();
+              }
+            });
+          return;
+        }
+
+        // กรณีไม่มี Cache ในเครื่อง (เปิดใช้งานครั้งแรก) หรือผู้ใช้กด "🔄 อัปเดตข้อมูล" (Force Refresh):
+        App.showLoading(isForceRefresh ? 'กำลังอัปเดตข้อมูลล่าสุดจากเซิร์ฟเวอร์...' : 'กำลังโหลดแบบฟอร์มตรวจสอบ...');
+
         App.callServer('apiGetChecklistForm', App.currentUser.line_uid, transDate)
-          .then(function(res) {
+          .then(function (res) {
+            self._restoreRefreshBtn();
             App.hideLoading();
             if (res && res.success && res.data) {
               self.currentData = res.data;
@@ -1468,21 +1784,36 @@
             } else {
               var err = (res && res.error) ? res.error.message : 'ไม่สามารถโหลดฟอร์มได้';
               App.showToast(err, 'error');
+              self.renderStatusBanner_(null, true, '');
               if (cached && cached.approvers && cached.approvers.length > 0) {
                 self.renderApproverDropdown_(cached.approvers);
               }
+              if (cached && cached.projects && cached.projects.length > 0) {
+                self.renderProjectDropdown_(cached.projects);
+              }
+            }
+            if (window.App && typeof window.App.onChecklistLoaded === 'function') {
+              window.App.onChecklistLoaded();
             }
           })
-          .catch(function(err) {
+          .catch(function (err) {
+            self._restoreRefreshBtn();
             App.hideLoading();
             App.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + err.message, 'error');
+            self.renderStatusBanner_(null, true, '');
             if (cached && cached.approvers && cached.approvers.length > 0) {
               self.renderApproverDropdown_(cached.approvers);
+            }
+            if (cached && cached.projects && cached.projects.length > 0) {
+              self.renderProjectDropdown_(cached.projects);
+            }
+            if (window.App && typeof window.App.onChecklistLoaded === 'function') {
+              window.App.onChecklistLoaded();
             }
           });
       },
 
-      renderForm_: function(data) {
+      renderForm_: function (data) {
         var self = this;
         var tx = data.transaction;
         var isEditable = data.isEditable;
@@ -1507,7 +1838,7 @@
         self.updateActionButtons_(tx, isEditable);
       },
 
-      updateActionButtons_: function(tx, isEditable) {
+      updateActionButtons_: function (tx, isEditable) {
         var btnSave = document.getElementById('btnSaveChecklist');
         var btnDelete = document.getElementById('btnDeleteChecklist');
 
@@ -1532,7 +1863,7 @@
         }
       },
 
-      renderStatusBanner_: function(tx, isEditable, lockReason) {
+      renderStatusBanner_: function (tx, isEditable, lockReason) {
         var banner = document.getElementById('statusNotice');
         var badge = document.getElementById('transStatusBadge');
         if (!banner || !badge) return;
@@ -1590,7 +1921,7 @@
         }
       },
 
-      renderQuestions_: function(questions, isEditable) {
+      renderQuestions_: function (questions, isEditable) {
         var container = document.getElementById('questionsContainer');
         if (!container) return;
 
@@ -1650,10 +1981,10 @@
                 '➖ ไม่ตรวจทั้งหมวด</button>';
             }
 
-            html += 
+            html +=
               '<div class="section-header">' +
-                '<div class="section-title">📑 ' + item.item_name + '</div>' +
-                btnHtml +
+              '<div class="section-title">📑 ' + item.item_name + '</div>' +
+              btnHtml +
               '</div>';
           } else {
             var strId = String(item.record_id).trim();
@@ -1669,19 +2000,19 @@
             cleanText = cleanText.replace(new RegExp('^' + escapedId + '[.\\s]+'), '');
 
             // UX: เรียงลำดับจากซ้ายไปขวา: ➖ ไม่ตรวจ / ❌ ไม่ผ่าน / ✅ ผ่าน (สำหรับคนถนัดขวา)
-            html += 
+            html +=
               '<div id="q_card_' + strId + '" class="question-card ' + answeredClass + '">' +
-                '<div class="question-text">' +
-                  '<span class="question-number">' + strId + '.</span> ' + cleanText +
-                '</div>' +
-                '<div class="segmented-control">' +
-                  '<button type="button" class="segmented-btn ' + activeNA + '" ' + disabledAttr +
-                    ' onclick="ChecklistModule.setAnswer(\'' + strId + '\', \'-\')">➖ ไม่ตรวจ</button>' +
-                  '<button type="button" class="segmented-btn ' + activeN + '" ' + disabledAttr +
-                    ' onclick="ChecklistModule.setAnswer(\'' + strId + '\', \'N\')">❌ ไม่ผ่าน</button>' +
-                  '<button type="button" class="segmented-btn ' + activeY + '" ' + disabledAttr +
-                    ' onclick="ChecklistModule.setAnswer(\'' + strId + '\', \'Y\')">✅ ผ่าน</button>' +
-                '</div>' +
+              '<div class="question-text">' +
+              '<span class="question-number">' + strId + '.</span> ' + cleanText +
+              '</div>' +
+              '<div class="segmented-control">' +
+              '<button type="button" class="segmented-btn ' + activeNA + '" ' + disabledAttr +
+              ' onclick="ChecklistModule.setAnswer(\'' + strId + '\', \'-\')">➖ ไม่ตรวจ</button>' +
+              '<button type="button" class="segmented-btn ' + activeN + '" ' + disabledAttr +
+              ' onclick="ChecklistModule.setAnswer(\'' + strId + '\', \'N\')">❌ ไม่ผ่าน</button>' +
+              '<button type="button" class="segmented-btn ' + activeY + '" ' + disabledAttr +
+              ' onclick="ChecklistModule.setAnswer(\'' + strId + '\', \'Y\')">✅ ผ่าน</button>' +
+              '</div>' +
               '</div>';
           }
         }
@@ -1690,7 +2021,7 @@
         container.innerHTML = html;
       },
 
-      toggleSectionNA: function(secIndex) {
+      toggleSectionNA: function (secIndex) {
         if (!this.sections || !this.sections[secIndex]) return;
         var sec = this.sections[secIndex];
         var childIds = sec.childIds || [];
@@ -1742,7 +2073,7 @@
         this.updateProgress_();
       },
 
-      updateSectionHeaderStateForQuestion_: function(recordId) {
+      updateSectionHeaderStateForQuestion_: function (recordId) {
         if (!this.questionToSectionIndex || !this.sections) return;
         var secIndex = this.questionToSectionIndex[recordId];
         if (secIndex === undefined || secIndex === null) return;
@@ -1767,7 +2098,7 @@
         }
       },
 
-      setAnswer: function(recordId, value) {
+      setAnswer: function (recordId, value) {
         var strId = String(recordId).trim();
         this.answers[strId] = value;
 
@@ -1794,7 +2125,7 @@
         this.updateProgress_();
       },
 
-      updateProgress_: function() {
+      updateProgress_: function () {
         var answeredCount = 0;
         var questions = (this.currentData && this.currentData.questions) ? this.currentData.questions : [];
 
@@ -1819,20 +2150,20 @@
         if (barEl) barEl.style.width = percent + '%';
       },
 
-      deleteCurrentChecklist: function() {
+      deleteCurrentChecklist: function () {
         var self = this;
         var tx = self.currentData ? self.currentData.transaction : null;
         if (!tx || !tx.transRecordId) return;
 
         var confirmMsg = 'คุณต้องการลบข้อมูลการตรวจสอบของวันที่ ' + (tx.transDate || '') + '\n' +
-                         'โครงการ: ' + (tx.project || '-') + '\n\n' +
-                         'คำเตือน: ข้อมูลรายการนี้จะถูกนำออกจากระบบถาวร ยืนยันที่จะลบหรือไม่?';
+          'โครงการ: ' + (tx.project || '-') + '\n\n' +
+          'คำเตือน: ข้อมูลรายการนี้จะถูกนำออกจากระบบถาวร ยืนยันที่จะลบหรือไม่?';
 
         if (!confirm(confirmMsg)) return;
 
         App.showLoading('กำลังลบข้อมูล...');
         App.callServer('apiDeleteChecklist', { transRecordId: tx.transRecordId, lineUid: App.currentUser.line_uid })
-          .then(function(res) {
+          .then(function (res) {
             App.hideLoading();
             if (res && res.success) {
               App.showToast('ลบรายการเรียบร้อยแล้ว', 'success');
@@ -1843,13 +2174,13 @@
               App.showToast(msg, 'error');
             }
           })
-          .catch(function(err) {
+          .catch(function (err) {
             App.hideLoading();
             App.showToast('เกิดข้อผิดพลาดในการลบ: ' + err.message, 'error');
           });
       },
 
-      submitChecklist: function() {
+      submitChecklist: function () {
         var self = this;
         if (!App.currentUser) return;
 
@@ -1883,7 +2214,7 @@
               if (card) {
                 card.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 card.style.borderColor = '#EF4444';
-                setTimeout(function() { card.style.borderColor = ''; }, 2000);
+                setTimeout(function () { card.style.borderColor = ''; }, 2000);
               }
               return;
             }
@@ -1907,7 +2238,7 @@
         }
 
         App.callServer(serverFn, payload)
-          .then(function(res) {
+          .then(function (res) {
             App.hideLoading();
             if (res && res.success) {
               App.showToast('บันทึกข้อมูลสำเร็จเรียบร้อยแล้ว!', 'success');
@@ -1917,7 +2248,7 @@
               App.showToast(msg, 'error');
             }
           })
-          .catch(function(err) {
+          .catch(function (err) {
             App.hideLoading();
             App.showToast('บันทึกล้มเหลว: ' + err.message, 'error');
           });
@@ -1934,19 +2265,41 @@
       approveTagL2: '',
       selectedIds: [],
 
-      init: function() {
+      cachedQueueData: null,
+      lastLoadedMonth: '',
+
+      init: function () {
         var now = new Date();
         var currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
         var mInput = document.getElementById('monthFilterInput');
-        if (mInput) mInput.value = currentMonth;
+        if (mInput && !mInput.value) mInput.value = currentMonth;
         this.loadQueue();
       },
 
-      onMonthChange: function() {
-        this.loadQueue();
+      onMonthChange: function () {
+        this.loadQueue(true);
       },
 
-      applyApprovalStepsUI_: function() {
+      applyQueueData_: function (data) {
+        var self = this;
+        if (!data) return;
+        self.approvalSteps = Number(data.approvalSteps) || 2;
+        self.approveTagL1 = data.approveTagL1 || '';
+        self.approveTagL2 = data.approveTagL2 || '';
+        self.asL1 = data.asL1 || [];
+        self.asL2 = data.asL2 || [];
+        self.l2Approvers = data.l2Approvers || [];
+        if (data.questions && data.questions.length > 0) {
+          self.questions = data.questions;
+        }
+
+        self.applyApprovalStepsUI_();
+        self.updateBadges_();
+        self.renderCards_();
+        self.updateBottomBar_();
+      },
+
+      applyApprovalStepsUI_: function () {
         var btnL2 = document.getElementById('subtabL2Btn');
         var btnL1 = document.getElementById('subtabL1Btn');
 
@@ -1970,7 +2323,7 @@
         }
       },
 
-      switchSubtab: function(tab) {
+      switchSubtab: function (tab) {
         this.activeSubtab = tab;
         this.selectedIds = [];
 
@@ -1994,42 +2347,55 @@
         this.updateBottomBar_();
       },
 
-      loadQueue: function() {
+      loadQueue: function (isForceRefresh) {
         var self = this;
         if (!App.currentUser) return;
 
         var month = document.getElementById('monthFilterInput') ? document.getElementById('monthFilterInput').value : '';
-        App.showLoading('กำลังโหลดรายการรออนุมัติ...');
         self.selectedIds = [];
 
-        App.callServer('apiGetApprovalQueue', App.currentUser.line_uid, month)
-          .then(function(res) {
+        // Fast-Path: หากมีข้อมูลแคชอยู่แล้วและเดือนตรงกัน ให้เรนเดอร์ทันที (< 0.01 วินาที)
+        var hasCache = self.cachedQueueData && (self.lastLoadedMonth === month);
+        if (hasCache) {
+          self.applyQueueData_(self.cachedQueueData);
+          if (!isForceRefresh) {
+            // อัปเดตข้อมูลสดในพื้นหลังแบบ Silent โดยไม่บล็อกหน้าจอ
+            App.callServer('apiGetApprovalQueue', App.currentUser.line_uid, month, App.currentUser.users_name)
+              .then(function (res) {
+                if (res && res.success && res.data) {
+                  self.cachedQueueData = res.data;
+                  self.lastLoadedMonth = month;
+                  self.applyQueueData_(res.data);
+                }
+              })
+              .catch(function (err) {
+                console.warn('[Approval] Background refresh warning:', err);
+              });
+            return;
+          }
+        }
+
+        App.showLoading('กำลังโหลดรายการรออนุมัติ...');
+
+        App.callServer('apiGetApprovalQueue', App.currentUser.line_uid, month, App.currentUser.users_name)
+          .then(function (res) {
             App.hideLoading();
             if (res && res.success && res.data) {
-              self.approvalSteps = Number(res.data.approvalSteps) || 2;
-              self.approveTagL1 = res.data.approveTagL1 || '';
-              self.approveTagL2 = res.data.approveTagL2 || '';
-              self.asL1 = res.data.asL1 || [];
-              self.asL2 = res.data.asL2 || [];
-              self.l2Approvers = res.data.l2Approvers || [];
-              self.questions = res.data.questions || [];
-
-              self.applyApprovalStepsUI_();
-              self.updateBadges_();
-              self.renderCards_();
-              self.updateBottomBar_();
+              self.cachedQueueData = res.data;
+              self.lastLoadedMonth = month;
+              self.applyQueueData_(res.data);
             } else {
               var msg = (res && res.error) ? res.error.message : 'ไม่สามารถโหลดคิวอนุมัติได้';
               App.showToast(msg, 'error');
             }
           })
-          .catch(function(err) {
+          .catch(function (err) {
             App.hideLoading();
             App.showToast('เกิดข้อผิดพลาดในการโหลดคิวอนุมัติ: ' + err.message, 'error');
           });
       },
 
-      updateBadges_: function() {
+      updateBadges_: function () {
         var b1 = document.getElementById('badgeL1Count');
         var b2 = document.getElementById('badgeL2Count');
         var topBadge = document.getElementById('approvalQueueBadge');
@@ -2043,18 +2409,18 @@
         if (topBadge) { topBadge.textContent = total; topBadge.style.display = total > 0 ? 'inline-block' : 'none'; }
       },
 
-      renderCards_: function() {
+      renderCards_: function () {
         var container = document.getElementById('approvalQueueContainer');
         if (!container) return;
 
         var list = this.activeSubtab === 'L1' ? this.asL1 : this.asL2;
 
         if (list.length === 0) {
-          container.innerHTML = 
+          container.innerHTML =
             '<div class="card" style="text-align:center; padding: 40px 20px; color: #64748B;">' +
-              '<div style="font-size: 2.5rem; margin-bottom: 8px;">🎉</div>' +
-              '<div style="font-weight: 600; font-size: 1rem;">ไม่มีรายการคอยอนุมัติในขณะนี้</div>' +
-              '<div style="font-size: 0.85rem; margin-top: 4px;">รายการทั้งหมดได้รับการดำเนินการเรียบร้อยแล้ว</div>' +
+            '<div style="font-size: 2.5rem; margin-bottom: 8px;">🎉</div>' +
+            '<div style="font-weight: 600; font-size: 1rem;">ไม่มีรายการคอยอนุมัติในขณะนี้</div>' +
+            '<div style="font-size: 0.85rem; margin-top: 4px;">รายการทั้งหมดได้รับการดำเนินการเรียบร้อยแล้ว</div>' +
             '</div>';
           return;
         }
@@ -2065,40 +2431,40 @@
           var isChecked = this.selectedIds.indexOf(item.transRecordId) !== -1;
           var answersCount = item.answers ? Object.keys(item.answers).length : 0;
 
-          html += 
+          html +=
             '<div class="queue-card">' +
-              '<div class="queue-card-top">' +
-                '<div style="display: flex; align-items: center; gap: 10px;">' +
-                  '<input type="checkbox" class="queue-checkbox" ' + (isChecked ? 'checked' : '') +
-                    ' onchange="ApprovalModule.toggleSelect(' + item.transRecordId + ', this.checked)">' +
-                  '<div>' +
-                    '<div class="queue-project">' + (item.project || 'ไม่ระบุโครงการ') + '</div>' +
-                    '<div class="queue-date">📅 วันที่ตรวจ: ' + item.transDate + '</div>' +
-                  '</div>' +
-                '</div>' +
-                '<span class="brand-badge" style="background:#EFF6FF; color:#1D4ED8;">ID: ' + item.transRecordId + '</span>' +
-              '</div>' +
+            '<div class="queue-card-top">' +
+            '<div style="display: flex; align-items: center; gap: 10px;">' +
+            '<input type="checkbox" class="queue-checkbox" ' + (isChecked ? 'checked' : '') +
+            ' onchange="ApprovalModule.toggleSelect(' + item.transRecordId + ', this.checked)">' +
+            '<div>' +
+            '<div class="queue-project">' + (item.project || 'ไม่ระบุโครงการ') + '</div>' +
+            '<div class="queue-date">📅 วันที่ตรวจ: ' + item.transDate + '</div>' +
+            '</div>' +
+            '</div>' +
+            '<span class="brand-badge" style="background:#EFF6FF; color:#1D4ED8;">ID: ' + item.transRecordId + '</span>' +
+            '</div>' +
 
-              '<div class="queue-meta">' +
-                '<span>👤 ผู้ตรวจ: <strong>' + (item.userName || item.lineUid || '-') + '</strong></span>' +
-                '<span>👔 ผู้อนุมัติ L1: <strong>' + (item.approveProfile1 || '-') + '</strong></span>' +
-                (item.approveProfile2 ? '<span>👔 ผู้อนุมัติ L2: <strong>' + item.approveProfile2 + '</strong></span>' : '') +
-                '<span>📝 ตอบแล้ว: <strong>' + answersCount + ' ข้อ</strong></span>' +
-                (item.resubmitCount > 0 ? '<span style="color:#B91C1C;">🔄 ตีกลับแล้ว ' + item.resubmitCount + ' ครั้ง</span>' : '') +
-              '</div>' +
+            '<div class="queue-meta">' +
+            '<span>👤 ผู้ตรวจ: <strong>' + (item.userName || item.lineUid || '-') + '</strong></span>' +
+            '<span>👔 ผู้อนุมัติ L1: <strong>' + (item.approveProfile1 || '-') + '</strong></span>' +
+            (item.approveProfile2 ? '<span>👔 ผู้อนุมัติ L2: <strong>' + item.approveProfile2 + '</strong></span>' : '') +
+            '<span>📝 ตอบแล้ว: <strong>' + answersCount + ' ข้อ</strong></span>' +
+            (item.resubmitCount > 0 ? '<span style="color:#B91C1C;">🔄 ตีกลับแล้ว ' + item.resubmitCount + ' ครั้ง</span>' : '') +
+            '</div>' +
 
-              '<div class="queue-actions">' +
-                '<button class="btn btn-secondary" style="flex:1; padding: 8px;" onclick="ApprovalModule.viewDetails(' + item.transRecordId + ')">' +
-                  '🔍 ดูรายละเอียดผลตรวจ' +
-                '</button>' +
-              '</div>' +
+            '<div class="queue-actions">' +
+            '<button class="btn btn-secondary" style="flex:1; padding: 8px;" onclick="ApprovalModule.viewDetails(' + item.transRecordId + ')">' +
+            '🔍 ดูรายละเอียดผลตรวจ' +
+            '</button>' +
+            '</div>' +
             '</div>';
         }
 
         container.innerHTML = html;
       },
 
-      toggleSelect: function(recordId, checked) {
+      toggleSelect: function (recordId, checked) {
         var idx = this.selectedIds.indexOf(recordId);
         if (checked && idx === -1) {
           this.selectedIds.push(recordId);
@@ -2108,7 +2474,7 @@
         this.updateBottomBar_();
       },
 
-      toggleSelectAll: function(checked) {
+      toggleSelectAll: function (checked) {
         var list = this.activeSubtab === 'L1' ? this.asL1 : this.asL2;
         this.selectedIds = [];
         if (checked) {
@@ -2118,21 +2484,21 @@
         }
 
         var checkboxes = document.querySelectorAll('.queue-card .queue-checkbox');
-        checkboxes.forEach(function(cb) { cb.checked = checked; });
+        checkboxes.forEach(function (cb) { cb.checked = checked; });
 
         this.updateBottomBar_();
       },
 
-      updateBottomBar_: function() {
+      updateBottomBar_: function () {
         var bar = document.getElementById('approvalBottomBar');
         var countEls = document.querySelectorAll('.selected-count');
         var count = this.selectedIds.length;
 
-        countEls.forEach(function(el) { el.textContent = count; });
+        countEls.forEach(function (el) { el.textContent = count; });
         if (bar) bar.style.display = count > 0 ? 'flex' : 'none';
       },
 
-      openApproveModal: function() {
+      openApproveModal: function () {
         if (this.selectedIds.length === 0) return;
 
         if (this.approvalSteps === 1) {
@@ -2149,7 +2515,7 @@
           var select = document.getElementById('modalL2Select');
           if (select) {
             select.innerHTML = '<option value="">-- กรุณาเลือกผู้อนุมัติระดับ 2 --</option>';
-            (this.l2Approvers || []).forEach(function(apv) {
+            (this.l2Approvers || []).forEach(function (apv) {
               var opt = document.createElement('option');
               opt.value = apv.users_name;
               opt.textContent = apv.users_name + (apv.emp_no ? ' (' + apv.emp_no + ')' : '');
@@ -2164,7 +2530,7 @@
         }
       },
 
-      confirmApproveSingleStep_: function() {
+      confirmApproveSingleStep_: function () {
         var self = this;
         App.showLoading('กำลังดำเนินการอนุมัติสมบูรณ์...');
 
@@ -2175,23 +2541,23 @@
         };
 
         App.callServer('apiApproveAction', payload)
-          .then(function(res) {
+          .then(function (res) {
             App.hideLoading();
             if (res && res.success) {
               App.showToast('อนุมัติสมบูรณ์เรียบร้อยแล้ว (' + res.data.updatedCount + ' รายการ)', 'success');
-              self.loadQueue();
+              self.loadQueue(true);
             } else {
               var msg = (res && res.error) ? res.error.message : 'เกิดข้อผิดพลาดในการอนุมัติ';
               App.showToast(msg, 'error');
             }
           })
-          .catch(function(err) {
+          .catch(function (err) {
             App.hideLoading();
             App.showToast('อนุมัติล้มเหลว: ' + err.message, 'error');
           });
       },
 
-      confirmApproveL1: function() {
+      confirmApproveL1: function () {
         var select = document.getElementById('modalL2Select');
         var l2Approver = select ? select.value : '';
 
@@ -2211,24 +2577,24 @@
         };
 
         App.callServer('apiApproveAction', payload)
-          .then(function(res) {
+          .then(function (res) {
             App.hideLoading();
             self.closeModals();
             if (res && res.success) {
               App.showToast('อนุมัติระดับ 1 สำเร็จ (' + res.data.updatedCount + ' รายการ) ส่งต่อไปยัง L2 แล้ว', 'success');
-              self.loadQueue();
+              self.loadQueue(true);
             } else {
               var msg = (res && res.error) ? res.error.message : 'เกิดข้อผิดพลาดในการอนุมัติ';
               App.showToast(msg, 'error');
             }
           })
-          .catch(function(err) {
+          .catch(function (err) {
             App.hideLoading();
             App.showToast('อนุมัติล้มเหลว: ' + err.message, 'error');
           });
       },
 
-      confirmApproveL2_: function() {
+      confirmApproveL2_: function () {
         var self = this;
         App.showLoading('กำลังดำเนินการอนุมัติระดับ 2 (เสร็จสิ้น)...');
 
@@ -2239,29 +2605,29 @@
         };
 
         App.callServer('apiApproveAction', payload)
-          .then(function(res) {
+          .then(function (res) {
             App.hideLoading();
             if (res && res.success) {
               App.showToast('อนุมัติสมบูรณ์เรียบร้อยแล้ว (' + res.data.updatedCount + ' รายการ)', 'success');
-              self.loadQueue();
+              self.loadQueue(true);
             } else {
               var msg = (res && res.error) ? res.error.message : 'เกิดข้อผิดพลาดในการอนุมัติ';
               App.showToast(msg, 'error');
             }
           })
-          .catch(function(err) {
+          .catch(function (err) {
             App.hideLoading();
             App.showToast('อนุมัติล้มเหลว: ' + err.message, 'error');
           });
       },
 
-      openRejectModal: function() {
+      openRejectModal: function () {
         if (this.selectedIds.length === 0) return;
         document.getElementById('modalRejectReasonText').value = '';
         document.getElementById('modalRejectReason').classList.add('active');
       },
 
-      confirmReject: function() {
+      confirmReject: function () {
         var reason = document.getElementById('modalRejectReasonText').value.trim();
         if (!reason) {
           App.showToast('กรุณาระบุเหตุผลการปฏิเสธเพื่อให้ผู้ตรวจนำไปแก้ไข', 'warning');
@@ -2279,24 +2645,24 @@
         };
 
         App.callServer('apiRejectAction', payload)
-          .then(function(res) {
+          .then(function (res) {
             App.hideLoading();
             self.closeModals();
             if (res && res.success) {
               App.showToast('ปฏิเสธรายการเรียบร้อยแล้ว (' + res.data.updatedCount + ' รายการ) ตีกลับให้ผู้ตรวจแก้ไข', 'warning');
-              self.loadQueue();
+              self.loadQueue(true);
             } else {
               var msg = (res && res.error) ? res.error.message : 'เกิดข้อผิดพลาดในการปฏิเสธ';
               App.showToast(msg, 'error');
             }
           })
-          .catch(function(err) {
+          .catch(function (err) {
             App.hideLoading();
             App.showToast('ปฏิเสธล้มเหลว: ' + err.message, 'error');
           });
       },
 
-      viewDetails: function(recordId) {
+      viewDetails: function (recordId) {
         var self = this;
         var list = this.activeSubtab === 'L1' ? this.asL1 : this.asL2;
         var target = null;
@@ -2310,7 +2676,7 @@
 
         var metaEl = document.getElementById('detailMetaContent');
         if (metaEl) {
-          metaEl.innerHTML = 
+          metaEl.innerHTML =
             '<div><strong>โครงการ:</strong> ' + (target.project || '-') + '</div>' +
             '<div><strong>วันที่ตรวจ:</strong> ' + target.transDate + ' | <strong>เวลาบันทึก:</strong> ' + (target.createDatetime || '-') + '</div>' +
             '<div><strong>ผู้ตรวจ:</strong> ' + (target.userName || target.lineUid || '-') + '</div>' +
@@ -2318,7 +2684,7 @@
             (target.approveProfile2 ? '<div><strong>ผู้อนุมัติ L2:</strong> ' + target.approveProfile2 + '</div>' : '');
         }
 
-var ansEl = document.getElementById('detailAnswersContent');
+        var ansEl = document.getElementById('detailAnswersContent');
         if (ansEl) {
           var answers = target.answers || {};
           var questions = (self.questions && self.questions.length > 0) ? self.questions : [];
@@ -2334,10 +2700,10 @@ var ansEl = document.getElementById('detailAnswersContent');
           }
           if (questions.length === 0) {
             try {
-              var tag = (window.App && window.App.screenTag) ? String(window.App.screenTag).trim() : 'SA03';
-              var qRaw = localStorage.getItem('FM_' + tag + '_LOCAL_QUESTIONS') || localStorage.getItem('FMSA03_LOCAL_QUESTIONS');
+              var tag = (window.App && window.App.screenTag) ? String(window.App.screenTag).trim() : 'SA01';
+              var qRaw = localStorage.getItem('FM_' + tag + '_LOCAL_QUESTIONS') || localStorage.getItem('FMSA01_LOCAL_QUESTIONS');
               if (qRaw) questions = JSON.parse(qRaw);
-            } catch (e) {}
+            } catch (e) { }
           }
 
           if (Object.keys(answers).length === 0 && questions.length === 0) {
@@ -2345,11 +2711,11 @@ var ansEl = document.getElementById('detailAnswersContent');
           } else {
             var html = '<table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">' +
               '<thead>' +
-                '<tr>' +
-                  '<th style="padding: 8px 10px; width: 60px; background:#F1F5F9; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #CBD5E1; color: #334155; text-align: left;">ข้อ</th>' +
-                  '<th style="padding: 8px 10px; background:#F1F5F9; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #CBD5E1; color: #334155; text-align: left;">หัวข้อการตรวจสอบ</th>' +
-                  '<th style="padding: 8px 10px; width: 85px; text-align: center; background:#F1F5F9; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #CBD5E1; color: #334155;">ผลตรวจ</th>' +
-                '</tr>' +
+              '<tr>' +
+              '<th style="padding: 8px 10px; width: 60px; background:#F1F5F9; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #CBD5E1; color: #334155; text-align: left;">ข้อ</th>' +
+              '<th style="padding: 8px 10px; background:#F1F5F9; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #CBD5E1; color: #334155; text-align: left;">หัวข้อการตรวจสอบ</th>' +
+              '<th style="padding: 8px 10px; width: 85px; text-align: center; background:#F1F5F9; position: sticky; top: 0; z-index: 2; border-bottom: 2px solid #CBD5E1; color: #334155;">ผลตรวจ</th>' +
+              '</tr>' +
               '</thead>' +
               '<tbody>';
 
@@ -2366,9 +2732,9 @@ var ansEl = document.getElementById('detailAnswersContent');
                   // แถวหัวข้อ (Section Header) คั่นหมวดหมู่ พาดเต็ม 3 คอลัมน์
                   html += '<tr style="background: #EFF6FF; border-top: 2px solid #BFDBFE; border-bottom: 1px solid #BFDBFE;">' +
                     '<td colspan="3" style="padding: 9px 10px; font-weight: 700; color: #1E40AF; font-size: 0.90rem;">' +
-                      '📑 ' + (item.item_name || '') +
+                    '📑 ' + (item.item_name || '') +
                     '</td>' +
-                  '</tr>';
+                    '</tr>';
                 } else {
                   // แถวคำถาม
                   var qId = String(item.record_id).trim();
@@ -2394,7 +2760,7 @@ var ansEl = document.getElementById('detailAnswersContent');
                     '<td style="padding: 8px 10px; font-weight: 700; color: #2563EB; vertical-align: top; white-space: nowrap;">ข้อ ' + qId + '</td>' +
                     '<td style="padding: 8px 10px; color: #1E293B; vertical-align: top; line-height: 1.4;">' + (qTitle || '-') + '</td>' +
                     '<td style="padding: 8px 10px; text-align: center; vertical-align: top;">' + badgeHtml + '</td>' +
-                  '</tr>';
+                    '</tr>';
                 }
               }
             }
@@ -2409,7 +2775,7 @@ var ansEl = document.getElementById('detailAnswersContent');
             }
 
             if (unrenderedKeys.length > 0) {
-              unrenderedKeys.sort(function(a, b) {
+              unrenderedKeys.sort(function (a, b) {
                 return String(a || '').localeCompare(String(b || ''), undefined, { numeric: true, sensitivity: 'base' });
               });
               for (var u = 0; u < unrenderedKeys.length; u++) {
@@ -2428,7 +2794,7 @@ var ansEl = document.getElementById('detailAnswersContent');
                   '<td style="padding: 8px 10px; font-weight: 700; color: #2563EB; vertical-align: top; white-space: nowrap;">ข้อ ' + uId + '</td>' +
                   '<td style="padding: 8px 10px; color: #1E293B; vertical-align: top; line-height: 1.4;">-</td>' +
                   '<td style="padding: 8px 10px; text-align: center; vertical-align: top;">' + uBadgeHtml + '</td>' +
-                '</tr>';
+                  '</tr>';
               }
             }
 
@@ -2440,16 +2806,16 @@ var ansEl = document.getElementById('detailAnswersContent');
         document.getElementById('modalViewDetails').classList.add('active');
       },
 
-      closeModals: function() {
+      closeModals: function () {
         var modals = document.querySelectorAll('.modal-overlay');
-        modals.forEach(function(m) { m.classList.remove('active'); });
+        modals.forEach(function (m) { m.classList.remove('active'); });
       }
     };
 
     var Navigation = {
       currentTab: 'checklist',
 
-      switchTab: function(tab) {
+      switchTab: function (tab) {
         this.currentTab = tab;
         var btnChecklist = document.getElementById('navTabChecklist');
         var btnApproval = document.getElementById('navTabApproval');
@@ -2477,30 +2843,19 @@ var ansEl = document.getElementById('detailAnswersContent');
       }
     };
 
-    window.addEventListener('DOMContentLoaded', function() {
-      App.init(function(user) {
+    window.addEventListener('DOMContentLoaded', function () {
+      App.init(function (user) {
         ChecklistModule.init();
 
+        // Safety fallback: หากผ่านไป 10 วินาทีแล้วยังไม่มีการ trigger ให้เรียก onChecklistLoaded เอง
         if (user && user.line_uid) {
-          // ตรวจสอบคิวอนุมัติหลังจากโหลดหน้าหลักเล็กน้อย เพื่อไม่ให้เกิด lock contention กับ apiGetChecklistForm
-          setTimeout(function() {
-            App.callServer('apiGetApprovalQueue', user.line_uid)
-              .then(function(res) {
-                if (res && res.success && res.data) {
-                  var total = (res.data.asL1 ? res.data.asL1.length : 0) + (res.data.asL2 ? res.data.asL2.length : 0);
-                  var badge = document.getElementById('approvalQueueBadge');
-                  if (badge) {
-                    badge.textContent = total;
-                    badge.style.display = total > 0 ? 'inline-block' : 'none';
-                  }
-                }
-              }).catch(function(e) {
-                console.warn('[Badge] queue check error:', e);
-              });
-          }, 1500);
+          setTimeout(function () {
+            if (App.onChecklistLoaded) App.onChecklistLoaded();
+          }, 10000);
         }
       });
     });
   </script>
 </body>
+
 </html>

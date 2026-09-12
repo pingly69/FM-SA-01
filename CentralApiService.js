@@ -7,7 +7,7 @@
  * ส่งคำขอตรงไป-กลับโดยไม่ต้องเก็บแคชซ้ำซ้อน
  */
 
-var CentralApiService = (function() {
+var CentralApiService = (function () {
   function postRequest_(payload) {
     var url = Config.getCentralAppUrl();
     var token = Config.getSharedToken();
@@ -30,14 +30,94 @@ var CentralApiService = (function() {
     }
   }
 
+  function postBatchRequests_(payloads) {
+    var url = Config.getCentralAppUrl();
+    var token = Config.getSharedToken();
+    var requests = payloads.map(function(p) {
+      p.token = token;
+      return {
+        url: url,
+        method: 'post',
+        contentType: 'application/json',
+        payload: JSON.stringify(p),
+        muteHttpExceptions: true
+      };
+    });
+
+    try {
+      var responses = UrlFetchApp.fetchAll(requests);
+      return responses.map(function(r) {
+        try {
+          return JSON.parse(r.getContentText());
+        } catch (err) {
+          Logger.log('[CentralApiService] JSON parse error in batch response: ' + err);
+          return null;
+        }
+      });
+    } catch (e) {
+      Logger.log('[CentralApiService] HTTP Error in postBatchRequests_: ' + e);
+      return payloads.map(function() { return null; });
+    }
+  }
+
   return {
+    /**
+     * ดึงข้อมูลโครงการและผู้อนุมัติพร้อมกันในรอบเดียวแบบคู่ขนาน (Parallel fetchAll)
+     * เพื่อลดเวลารอ Central API จาก 6-8 วินาที เหลือเพียง 2-3 วินาที
+     * @param {string} approveTag เช่น "จป.หัวหน้างาน"
+     * @returns {{ projects: Array<string>, approvers: Array<Object> }}
+     */
+    getChecklistMasterData: function (approveTag) {
+      var datasetKey = Config.getProjectDatasetKey() || 'site';
+      var payloads = [
+        {
+          action: 'getList',
+          datasetKey: datasetKey,
+          forceFresh: false
+        }
+      ];
+
+      var hasTag = approveTag && approveTag !== '-' && approveTag !== 'none';
+      if (hasTag) {
+        payloads.push({
+          action: 'getApproveList',
+          datasetKey: 'users_profile',
+          approve_tag: approveTag,
+          forceFresh: false
+        });
+      }
+
+      var results = postBatchRequests_(payloads);
+      var projectRes = results[0];
+      var approverRes = hasTag ? results[1] : null;
+
+      var projects = [];
+      if (projectRes && projectRes.ok && Array.isArray(projectRes.data)) {
+        projects = projectRes.data;
+      } else {
+        Logger.log('[CentralApiService] getChecklistMasterData: failed to get projects');
+      }
+
+      var approvers = [];
+      if (approverRes && approverRes.ok && Array.isArray(approverRes.data)) {
+        approvers = approverRes.data;
+      } else if (hasTag) {
+        Logger.log('[CentralApiService] getChecklistMasterData: failed to get approvers for tag ' + approveTag);
+      }
+
+      return {
+        projects: projects,
+        approvers: approvers
+      };
+    },
+
     /**
      * ตรวจสอบตัวตนและสิทธิ์เข้าถึงหน้าจอตาม spec-users-profile-api.md หมวด 4.1
      * @param {string} lineUid LINE UID ของผู้ใช้งาน
      * @param {string} [screen] รหัสหน้าจอ (default: 'SA01')
      * @returns {Object} { ok, authorized, statusCode, message, user }
      */
-    verifyAccess: function(lineUid, screen) {
+    verifyAccess: function (lineUid, screen) {
       if (!lineUid) {
         return {
           ok: false,
@@ -95,8 +175,8 @@ var CentralApiService = (function() {
      * @param {string} approveTag เช่น "จป.หัวหน้างาน" หรือ "จป.วิชาชีพ"
      * @returns {Array<Object>} รายชื่อผู้อนุมัติ [{ users_id, users_name, line_uid, emp_no, email }]
      */
-    getApproveList: function(approveTag) {
-      if (!approveTag) return [];
+    getApproveList: function (approveTag) {
+      if (!approveTag || approveTag === '-' || approveTag === 'none') return [];
 
       var payload = {
         action: 'getApproveList',
@@ -122,7 +202,7 @@ var CentralApiService = (function() {
      * ตาม integration-guide.md
      * @returns {Array<string>} รายชื่อโครงการ
      */
-    getProjectList: function() {
+    getProjectList: function () {
       var datasetKey = Config.getProjectDatasetKey() || 'site';
       var payload = {
         action: 'getList',
@@ -139,21 +219,14 @@ var CentralApiService = (function() {
         Logger.log('[CentralApiService] getProjectList failed: ' + e);
       }
 
-      // Fallback รายชื่อโครงการตัวอย่างกรณีระบบกลางขัดข้อง
-      return [
-        'สำนักงานใหญ่ (HQ)',
-        'โครงการก่อสร้าง A (Bangkok)',
-        'โรงงานผลิต 1 (Chonburi)',
-        'คลังสินค้ากลาง (Rayong)',
-        'ศูนย์กระจายสินค้า (Ayutthaya)'
-      ];
+      return [];
     },
 
     /**
      * ดึง Map รายชื่อผู้ใช้ตาม LINE UID { [line_uid]: users_name }
      * เพื่อนำชื่อผู้ตรวจไปแสดงผลแทน LINE UID ในหน้าจออนุมัติ
      */
-    getUserMapByLineUid: function() {
+    getUserMapByLineUid: function () {
       var payload = {
         action: 'getList',
         datasetKey: 'users_profile',

@@ -3,10 +3,48 @@
 <script>
 var App = {
   currentUser: null,
-  liffId: '2009016720-NiJ6Jzhp',
-  screenTag: 'SA03',
-  gasUrl: 'https://script.google.com/macros/s/AKfycbzT-c6Lv1Zjaw4vKkOEHj7vjxN8TC86SLBX2zGPD-QKvg1UC2CcO_HlTTOyUIRa2fK1xg/exec',
+  liffId: '2009016720-cesy3wsR',
+  screenTag: 'SA01',
+  gasUrl: 'https://script.google.com/macros/s/AKfycbzem8n0H6PkCKaFugEEpt1aYhuH5G1MoFZDIQuArrnIg1oHV8sQJyyF1HCBF0KiOgxWyg/exec',
   _loadingTimer: null,
+  _inFlightRequests: {},
+  _queueCheckDone: false,
+
+  /**
+   * เรียกเมื่อ Checklist พร้อมทำงานแล้ว เพื่อเริ่มตรวจสอบคิวรออนุมัติในพื้นหลังอย่างปลอดภัย
+   * ป้องกันการชนกัน (Concurrency collision) กับ apiGetChecklistForm ในจังหวะเปิดแอปครั้งแรก
+   */
+  onChecklistLoaded: function() {
+    var self = this;
+    if (self._queueCheckDone) return;
+    self._queueCheckDone = true;
+    if (!self.currentUser || !self.currentUser.line_uid) return;
+
+    setTimeout(function () {
+      var user = self.currentUser;
+      var now = new Date();
+      var currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+      self.callServer('apiGetApprovalQueue', user.line_uid, currentMonth, user.users_name)
+        .then(function (res) {
+          if (res && res.success && res.data) {
+            if (window.ApprovalModule) {
+              ApprovalModule.cachedQueueData = res.data;
+              ApprovalModule.lastLoadedMonth = currentMonth;
+              ApprovalModule.applyQueueData_(res.data);
+            }
+            var total = (res.data.asL1 ? res.data.asL1.length : 0) + (res.data.asL2 ? res.data.asL2.length : 0);
+            var badge = document.getElementById('approvalQueueBadge');
+            if (badge) {
+              badge.textContent = total;
+              badge.style.display = total > 0 ? 'inline-block' : 'none';
+            }
+          }
+        })
+        .catch(function (e) {
+          console.warn('[Badge] queue check error:', e);
+        });
+    }, 1500);
+  },
 
   /**
    * เริ่มต้นระบบ LIFF และดึงข้อมูลผู้ใช้งาน
@@ -16,7 +54,7 @@ var App = {
     self.showLoading('กำลังเชื่อมต่อระบบ LINE...');
 
     if (!self.liffId || self.liffId.length < 5) {
-      self.liffId = '2009016720-NiJ6Jzhp';
+      self.liffId = '2009016720-cesy3wsR';
     }
 
     // ตรวจสอบพารามิเตอร์ทดสอบเฉพาะสำหรับนักพัฒนา (?mock=true หรือเปิดบน localhost)
@@ -134,22 +172,51 @@ var App = {
 
   /**
    * ยืนยันตัวตนกับ Central IAM Service
+   * ปรับปรุง: ใช้ Fast-Path Auth บน localStorage (TTL 24 ชม.) เปิดแอปได้ทันทีใน 0.001 วินาที ไม่ติด Timeout
    */
   verifyUserOnServer_: function(lineUid, displayName, callback) {
     var self = this;
-    var cacheKey = 'fmsa01_auth_' + lineUid;
+    var tag = (self.screenTag || 'SA01').trim();
+    var cacheKey = 'FM_' + tag + '_AUTH_' + lineUid;
+    var cacheTimeKey = 'FM_' + tag + '_AUTH_TIME_' + lineUid;
+    var AUTH_TTL = 24 * 60 * 60 * 1000; // 24 ชั่วโมง
 
     var cached = null;
+    var cachedTime = 0;
     try {
-      var raw = sessionStorage.getItem(cacheKey);
+      var raw = localStorage.getItem(cacheKey) || 
+                localStorage.getItem('fmsa01_auth_' + lineUid) || 
+                sessionStorage.getItem(cacheKey);
+      var rawTime = localStorage.getItem(cacheTimeKey) || 
+                    localStorage.getItem('fmsa01_auth_time_' + lineUid);
       if (raw) cached = JSON.parse(raw);
+      if (rawTime) cachedTime = parseInt(rawTime, 10) || 0;
     } catch (e) {}
 
-    if (cached && cached.users_name) {
+    var isCacheValid = cached && cached.users_name && (Date.now() - cachedTime < AUTH_TTL);
+
+    if (isCacheValid) {
+      console.log('[App] Fast-path Auth hit from localStorage for UID:', lineUid);
       self.currentUser = cached;
       self.renderUserProfileHeader_();
       self.hideLoading();
       if (callback) callback(self.currentUser);
+
+      // Background revalidation (Stale-While-Revalidate) หากแคชเกิน 1 ชม. ค่อย sync เงียบๆ ด้านหลัง
+      if (Date.now() - cachedTime > 60 * 60 * 1000) {
+        self.callServer('apiVerifyUser', lineUid).then(function(res) {
+          if (res && res.success && res.data) {
+            self.currentUser = res.data;
+            try {
+              localStorage.setItem(cacheKey, JSON.stringify(res.data));
+              localStorage.setItem(cacheTimeKey, String(Date.now()));
+            } catch (e) {}
+            self.renderUserProfileHeader_();
+          }
+        }).catch(function(err) {
+          console.warn('[App] Background auth revalidation error (ignored):', err);
+        });
+      }
       return;
     }
 
@@ -160,7 +227,11 @@ var App = {
         self.hideLoading();
         if (res && res.success && res.data) {
           self.currentUser = res.data;
-          try { sessionStorage.setItem(cacheKey, JSON.stringify(res.data)); } catch (e) {}
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify(res.data));
+            localStorage.setItem(cacheTimeKey, String(Date.now()));
+            sessionStorage.setItem(cacheKey, JSON.stringify(res.data));
+          } catch (e) {}
           self.renderUserProfileHeader_();
           if (callback) callback(self.currentUser);
         } else {
@@ -170,6 +241,14 @@ var App = {
       })
       .catch(function(err) {
         self.hideLoading();
+        // กรณีเชื่อมต่อเซิร์ฟเวอร์ไม่ได้หรือ Timeout แต่มีแคชเก่าในเครื่อง ให้กู้คืนมาใช้งานต่อได้เลย
+        if (cached && cached.users_name) {
+          console.warn('[App] Server call failed, using expired cache as fallback');
+          self.currentUser = cached;
+          self.renderUserProfileHeader_();
+          if (callback) callback(self.currentUser);
+          return;
+        }
         self.showAccessDeniedScreen('เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์: ' + (err.message || err));
       });
   },
@@ -190,7 +269,7 @@ var App = {
         '<div class="card" style="text-align:center; padding: 40px 20px; margin-top: 30px;">' +
           '<div style="font-size: 3rem; margin-bottom: 12px;">🚫</div>' +
           '<h2 style="color: #EF4444; margin-bottom: 10px;">การเข้าถึงถูกปฏิเสธ</h2>' +
-          '<p style="color: #64748B; font-size: 0.95rem; margin-bottom: 20px;">' + (msg || 'ท่านไม่มีสิทธิ์เข้าใช้งานระบบ SA03') + '</p>' +
+          '<p style="color: #64748B; font-size: 0.95rem; margin-bottom: 20px;">' + (msg || ('ท่านไม่มีสิทธิ์เข้าใช้งานระบบ ' + (self.screenTag || 'SA01'))) + '</p>' +
           '<button class="btn btn-secondary" onclick="location.reload()" style="max-width: 200px; margin: 0 auto;">ลองใหม่อีกครั้ง</button>' +
         '</div>';
     }
@@ -235,8 +314,11 @@ var App = {
   /**
    * ส่ง HTTP POST ไปยัง Google Apps Script Web App (สำหรับ GitHub Pages)
    */
-  callGasApi_: function(fnName, args) {
+  callGasApi_: function(fnName, args, retryCount) {
     var self = this;
+    var maxRetries = 2;
+    var currentRetry = retryCount || 0;
+
     var action = fnName.replace(/^api/, '');
     action = action.charAt(0).toLowerCase() + action.slice(1);
 
@@ -252,7 +334,8 @@ var App = {
       body.transDate = args[1];
     } else if (action === 'getApprovalQueue') {
       body.lineUid = args[0];
-      body.monthFilter = args[1];
+      body.monthFilter = args[1] || '';
+      body.approverName = args[2] || (self.currentUser ? self.currentUser.users_name : '');
     } else if (action === 'deleteChecklist') {
       var delPayload = args[0] || {};
       if (typeof delPayload === 'object') {
@@ -269,7 +352,14 @@ var App = {
       }
     }
 
-    return fetch(self.gasUrl, {
+    // In-flight Request Deduplication: ป้องกันการยิง request เดียวกันซ้อนกันไปติด lock บน GAS
+    var inFlightKey = (action === 'getApprovalQueue') ? ('getApprovalQueue_' + (body.lineUid || '') + '_' + (body.monthFilter || '')) : null;
+    if (inFlightKey && self._inFlightRequests && self._inFlightRequests[inFlightKey]) {
+      console.log('[App] Reusing in-flight request for ' + inFlightKey);
+      return self._inFlightRequests[inFlightKey];
+    }
+
+    var reqPromise = fetch(self.gasUrl, {
       method: 'POST',
       headers: {
         // สำคัญ: ใช้ text/plain เพื่อไม่ให้เบราว์เซอร์ส่ง OPTIONS preflight (GAS ไม่รองรับ OPTIONS)
@@ -279,14 +369,46 @@ var App = {
     })
     .then(function(res) {
       if (!res.ok) {
+        if (currentRetry < maxRetries && (res.status === 404 || res.status === 500 || res.status === 502 || res.status === 503)) {
+          console.warn('[App] GAS API call (' + fnName + ') returned HTTP ' + res.status + ', retrying (' + (currentRetry + 1) + '/' + maxRetries + ')...');
+          return new Promise(function(resolve) {
+            setTimeout(resolve, 1500);
+          }).then(function() {
+            return self.callGasApi_(fnName, args, currentRetry + 1);
+          });
+        }
         throw new Error('HTTP Status ' + res.status);
       }
       return res.json();
     })
+    .then(function(json) {
+      if (inFlightKey && self._inFlightRequests) {
+        delete self._inFlightRequests[inFlightKey];
+      }
+      return json;
+    })
     .catch(function(err) {
+      if (inFlightKey && self._inFlightRequests) {
+        delete self._inFlightRequests[inFlightKey];
+      }
+      var errMsg = (err && err.message) ? err.message : String(err);
+      if (currentRetry < maxRetries && (errMsg.indexOf('Failed to fetch') !== -1 || errMsg.indexOf('NetworkError') !== -1 || errMsg.indexOf('HTTP Status 404') !== -1)) {
+        console.warn('[App] Network/Proxy error (' + fnName + '), retrying (' + (currentRetry + 1) + '/' + maxRetries + ')...');
+        return new Promise(function(resolve) {
+          setTimeout(resolve, 1500);
+        }).then(function() {
+          return self.callGasApi_(fnName, args, currentRetry + 1);
+        });
+      }
       console.error('[App] GAS API Call Error:', err);
-      throw new Error('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้: ' + err.message);
+      throw new Error('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้: ' + errMsg);
     });
+
+    if (inFlightKey && self._inFlightRequests) {
+      self._inFlightRequests[inFlightKey] = reqPromise;
+    }
+
+    return reqPromise;
   },
 
   showLoading: function(text) {

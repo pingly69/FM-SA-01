@@ -35,11 +35,11 @@ var ChecklistService = (function() {
      */
     getChecklistFormData: function(lineUid, transDate) {
       var targetDate = transDate || DateUtils.todayBangkok();
-      // หน่วงข้อมูลใน ScriptCache (10 นาทีสำหรับ Central API และ 6 ชม. สำหรับ FORM_MASTER)
-      // ป้องกัน Google Sheets Timeout และ Google Quota Block เมื่อมีผู้ใช้กดพร้อมกัน
       var questions = FormMasterRepo.getFormMasterCached();
-      var projects = CentralApiService.getProjectList();
-      var l1Approvers = CentralApiService.getApproveList(Config.getApproveTagL1());
+      var tagL1 = Config.getApproveTagL1();
+      var masterData = CentralApiService.getChecklistMasterData(tagL1);
+      var projects = masterData.projects;
+      var l1Approvers = masterData.approvers;
 
       var existingTx = null;
       var isEditable = true;

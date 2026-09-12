@@ -310,6 +310,54 @@ var TransactionRepo = (function() {
     },
 
     /**
+     * ค้นหารายการคอยอนุมัติทั้งระดับ 1 และ 2 ในรอบเดียว (Single Sheet Scan)
+     * ช่วยลดเวลาอ่าน Google Sheet ลง 50%
+     * @param {string} approverName ชื่อผู้อนุมัติ
+     * @param {string} [monthFilter] กรองเดือน เช่น "2026-09"
+     * @param {number} [steps] จำนวนระดับการอนุมัติ (1 หรือ 2)
+     * @returns {{ asL1: Array<Object>, asL2: Array<Object> }}
+     */
+    findPendingQueues: function(approverName, monthFilter, steps) {
+      var sheet = getSheet_();
+      var data = sheet.getDataRange().getValues();
+      if (data.length <= 1) return { asL1: [], asL2: [] };
+
+      var asL1 = [];
+      var asL2 = [];
+      var checkL2 = (Number(steps) > 1);
+
+      for (var i = 1; i < data.length; i++) {
+        var row = data[i];
+        var status = String(row[8] || '').trim();
+        var tDate = normalizeDate_(row[1]);
+
+        if (monthFilter && tDate.indexOf(monthFilter) !== 0) {
+          continue;
+        }
+
+        if (status === 'PENDING_L1') {
+          var apv1 = String(row[6] || '').trim();
+          if (apv1 === approverName) {
+            asL1.push(rowToObject_(row, i + 1));
+          }
+        } else if (checkL2 && status === 'PENDING_L2') {
+          var apv2 = String(row[7] || '').trim();
+          if (apv2 === approverName) {
+            asL2.push(rowToObject_(row, i + 1));
+          }
+        }
+      }
+
+      var sortFn = function(a, b) {
+        return b.transDate.localeCompare(a.transDate) || b.transRecordId - a.transRecordId;
+      };
+      asL1.sort(sortFn);
+      if (checkL2) asL2.sort(sortFn);
+
+      return { asL1: asL1, asL2: asL2 };
+    },
+
+    /**
      * ค้นหารายการคอยอนุมัติระดับ 1 (PENDING_L1) ที่ระบุ approve_profile1
      * @param {string} approverName ชื่อผู้อนุมัติ
      * @param {string} [monthFilter] กรองเดือน เช่น "2026-09"

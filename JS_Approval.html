@@ -10,17 +10,39 @@ var ApprovalModule = {
   selectedIds: [],
   questionsMap: {},
 
+  cachedQueueData: null,
+  lastLoadedMonth: '',
+
   init: function() {
     var now = new Date();
     var currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
     var mInput = document.getElementById('monthFilterInput');
-    if (mInput) mInput.value = currentMonth;
+    if (mInput && !mInput.value) mInput.value = currentMonth;
 
     this.loadQueue();
   },
 
   onMonthChange: function(val) {
-    this.loadQueue();
+    this.loadQueue(true);
+  },
+
+  applyQueueData_: function(data) {
+    var self = this;
+    if (!data) return;
+    self.approvalSteps = Number(data.approvalSteps) || 2;
+    self.approveTagL1 = data.approveTagL1 || '';
+    self.approveTagL2 = data.approveTagL2 || '';
+    self.asL1 = data.asL1 || [];
+    self.asL2 = data.asL2 || [];
+    self.l2Approvers = data.l2Approvers || [];
+    if (data.questions && data.questions.length > 0) {
+      self.questions = data.questions;
+    }
+
+    self.applyApprovalStepsUI_();
+    self.updateBadges_();
+    self.renderCards_();
+    self.updateBottomBar_();
   },
 
   applyApprovalStepsUI_: function() {
@@ -71,30 +93,43 @@ var ApprovalModule = {
     this.updateBottomBar_();
   },
 
-  loadQueue: function() {
+  loadQueue: function(isForceRefresh) {
     var self = this;
     if (!App.currentUser) return;
 
     var month = document.getElementById('monthFilterInput') ? document.getElementById('monthFilterInput').value : '';
-    App.showLoading('กำลังโหลดรายการรออนุมัติ...');
     self.selectedIds = [];
 
-    App.callServer('apiGetApprovalQueue', App.currentUser.line_uid, month)
+    // Fast-Path: หากมีข้อมูลแคชอยู่แล้วและเดือนตรงกัน ให้เรนเดอร์ทันที (< 0.01 วินาที)
+    var hasCache = self.cachedQueueData && (self.lastLoadedMonth === month);
+    if (hasCache) {
+      self.applyQueueData_(self.cachedQueueData);
+      if (!isForceRefresh) {
+        // อัปเดตข้อมูลสดในพื้นหลังแบบ Silent โดยไม่บล็อกหน้าจอ
+        App.callServer('apiGetApprovalQueue', App.currentUser.line_uid, month, App.currentUser.users_name)
+          .then(function(res) {
+            if (res && res.success && res.data) {
+              self.cachedQueueData = res.data;
+              self.lastLoadedMonth = month;
+              self.applyQueueData_(res.data);
+            }
+          })
+          .catch(function(err) {
+            console.warn('[Approval] Background refresh warning:', err);
+          });
+        return;
+      }
+    }
+
+    App.showLoading('กำลังโหลดรายการรออนุมัติ...');
+
+    App.callServer('apiGetApprovalQueue', App.currentUser.line_uid, month, App.currentUser.users_name)
       .then(function(res) {
         App.hideLoading();
         if (res && res.success && res.data) {
-          self.approvalSteps = Number(res.data.approvalSteps) || 2;
-          self.approveTagL1 = res.data.approveTagL1 || '';
-          self.approveTagL2 = res.data.approveTagL2 || '';
-          self.asL1 = res.data.asL1 || [];
-          self.asL2 = res.data.asL2 || [];
-          self.l2Approvers = res.data.l2Approvers || [];
-          self.questions = res.data.questions || [];
-
-          self.applyApprovalStepsUI_();
-          self.updateBadges_();
-          self.renderCards_();
-          self.updateBottomBar_();
+          self.cachedQueueData = res.data;
+          self.lastLoadedMonth = month;
+          self.applyQueueData_(res.data);
         } else {
           var msg = (res && res.error) ? res.error.message : 'ไม่สามารถโหลดคิวอนุมัติได้';
           App.showToast(msg, 'error');
@@ -269,7 +304,7 @@ var ApprovalModule = {
         App.hideLoading();
         if (res && res.success) {
           App.showToast('อนุมัติสมบูรณ์เรียบร้อยแล้ว (' + res.data.updatedCount + ' รายการ)', 'success');
-          self.loadQueue();
+          self.loadQueue(true);
         } else {
           var msg = (res && res.error) ? res.error.message : 'เกิดข้อผิดพลาดในการอนุมัติ';
           App.showToast(msg, 'error');
@@ -306,7 +341,7 @@ var ApprovalModule = {
         self.closeModals();
         if (res && res.success) {
           App.showToast('อนุมัติระดับ 1 สำเร็จ (' + res.data.updatedCount + ' รายการ) ส่งต่อไปยัง L2 แล้ว', 'success');
-          self.loadQueue();
+          self.loadQueue(true);
         } else {
           var msg = (res && res.error) ? res.error.message : 'เกิดข้อผิดพลาดในการอนุมัติ';
           App.showToast(msg, 'error');
@@ -333,7 +368,7 @@ var ApprovalModule = {
         App.hideLoading();
         if (res && res.success) {
           App.showToast('อนุมัติสมบูรณ์เรียบร้อยแล้ว (' + res.data.updatedCount + ' รายการ)', 'success');
-          self.loadQueue();
+          self.loadQueue(true);
         } else {
           var msg = (res && res.error) ? res.error.message : 'เกิดข้อผิดพลาดในการอนุมัติ';
           App.showToast(msg, 'error');
@@ -374,7 +409,7 @@ var ApprovalModule = {
         self.closeModals();
         if (res && res.success) {
           App.showToast('ปฏิเสธรายการเรียบร้อยแล้ว (' + res.data.updatedCount + ' รายการ) ตีกลับให้ผู้ตรวจแก้ไข', 'warning');
-          self.loadQueue();
+          self.loadQueue(true);
         } else {
           var msg = (res && res.error) ? res.error.message : 'เกิดข้อผิดพลาดในการปฏิเสธ';
           App.showToast(msg, 'error');

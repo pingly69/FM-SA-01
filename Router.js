@@ -20,7 +20,7 @@ function doGet(e) {
       } else if (action === 'getTransactionByDate') {
         result = apiGetTransactionByDate(e.parameter.lineUid, e.parameter.transDate);
       } else if (action === 'getApprovalQueue') {
-        result = apiGetApprovalQueue(e.parameter.lineUid, e.parameter.monthFilter);
+        result = apiGetApprovalQueue(e.parameter.lineUid, e.parameter.monthFilter, e.parameter.approverName);
       } else {
         result = ResponseUtils.fail('INVALID_ACTION', 'Action ไม่ถูกต้อง: ' + action);
       }
@@ -34,7 +34,7 @@ function doGet(e) {
 
   // HTML Web App Mode
   return HtmlService.createHtmlOutputFromFile('index')
-    .setTitle('FM-SA-03 v1.0 | แบบตรวจความปลอดภัย & อนุมัติ')
+    .setTitle('FM-SA-01 v1.0 | ตรวจเครื่องมือและอุปกรณ์')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
@@ -78,7 +78,7 @@ function doPost(e) {
     } else if (action === 'deleteChecklist') {
       result = apiDeleteChecklist(body);
     } else if (action === 'getApprovalQueue') {
-      result = apiGetApprovalQueue(body.lineUid, body.monthFilter);
+      result = apiGetApprovalQueue(body.lineUid, body.monthFilter, body.approverName);
     } else if (action === 'approveAction') {
       result = apiApproveAction(body);
     } else if (action === 'rejectAction') {

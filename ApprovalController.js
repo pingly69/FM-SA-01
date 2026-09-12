@@ -3,12 +3,12 @@
  * จัดการคิวอนุมัติระดับ 1 และ 2, สั่ง Approve / Reject
  */
 
-function apiGetApprovalQueue(lineUid, monthFilter) {
+function apiGetApprovalQueue(lineUid, monthFilter, approverName) {
   try {
     if (!lineUid) {
       return ResponseUtils.fail('MISSING_UID', 'ไม่ได้ระบุ LINE UID');
     }
-    var queueData = ApprovalService.getApprovalQueue(lineUid, monthFilter);
+    var queueData = ApprovalService.getApprovalQueue(lineUid, monthFilter, approverName);
     return ResponseUtils.ok(queueData);
   } catch (e) {
     Logger.log('[ApprovalController] apiGetApprovalQueue error: ' + e);

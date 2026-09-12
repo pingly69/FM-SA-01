@@ -31,10 +31,9 @@ var ChecklistModule = {
       return;
     }
 
-    App.showLoading('กำลังตรวจสอบข้อมูลของวันที่ ' + newDate + '...');
+    self.showCheckingStatus_(newDate);
     App.callServer('apiGetTransactionByDate', App.currentUser.line_uid, newDate)
       .then(function(res) {
-        App.hideLoading();
         if (res && res.success && res.data) {
           self.applyTransactionUpdate_(res.data);
         } else {
@@ -42,7 +41,6 @@ var ChecklistModule = {
         }
       })
       .catch(function(err) {
-        App.hideLoading();
         self.loadForm(newDate);
       });
   },
@@ -172,13 +170,14 @@ var ChecklistModule = {
   clearLocalCache_: function() {
     try {
       var keys = this.getCacheKeys_();
-      localStorage.removeItem(keys.QUESTIONS);
+      // เคลียร์เฉพาะโครงการและผู้อนุมัติ (คงคำถามและ Auth ไว้เพื่อความเร็วและป้องกันการยิงเซิร์ฟเวอร์หนักเกินจำเป็น)
       localStorage.removeItem(keys.PROJECTS);
       localStorage.removeItem(keys.APPROVERS);
       localStorage.removeItem(keys.APPROVER_TAG);
       localStorage.removeItem(keys.TIME);
+
       // เคลียร์คีย์เวอร์ชันเดิม (ถ้ามี)
-      localStorage.removeItem('FMSA03_LOCAL_QUESTIONS');
+      localStorage.removeItem('CENTRAL_SITE_PROJECTS');
       localStorage.removeItem('FMSA03_LOCAL_PROJECTS');
       localStorage.removeItem('FMSA03_LOCAL_APPROVERS');
       localStorage.removeItem('FMSA03_LOCAL_CACHE_TIME');
@@ -189,11 +188,29 @@ var ChecklistModule = {
 
   forceRefreshCache: function() {
     var self = this;
+    var btn = document.getElementById('btnRefreshMasterCache');
+    if (btn && btn.disabled) return;
+    if (btn) {
+      btn.disabled = true;
+      btn.setAttribute('data-original-html', btn.innerHTML);
+      btn.innerHTML = '⏳ กำลังอัปเดต...';
+    }
+
     self.clearLocalCache_();
     App.showToast('กำลังดึงข้อมูลโครงการและผู้อนุมัติล่าสุดจากเซิร์ฟเวอร์...', 'info');
     var dateInput = document.getElementById('transDateInput');
     var targetDate = (dateInput && dateInput.value) ? dateInput.value : self.getTodayString_();
     self.loadForm(targetDate, true);
+  },
+
+  _restoreRefreshBtn: function() {
+    var btn = document.getElementById('btnRefreshMasterCache');
+    if (btn) {
+      btn.disabled = false;
+      var orig = btn.getAttribute('data-original-html');
+      if (orig) btn.innerHTML = orig;
+      else btn.innerHTML = '🔄 อัปเดตข้อมูล';
+    }
   },
 
   renderProjectDropdown_: function(projects, selectedProject, isEditable) {
@@ -245,6 +262,27 @@ var ChecklistModule = {
     }
   },
 
+  /**
+   * แสดงป้ายสถานะแจ้งเตือนว่ากำลังตรวจสอบข้อมูลรายการของวันนั้นจากเซิร์ฟเวอร์
+   */
+  showCheckingStatus_: function(transDate) {
+    var banner = document.getElementById('statusNotice');
+    var badge = document.getElementById('transStatusBadge');
+    if (badge) {
+      badge.textContent = 'กำลังตรวจสอบ...';
+      badge.style.background = '#FEF3C7';
+      badge.style.color = '#B45309';
+    }
+    if (banner) {
+      banner.className = 'status-banner pending';
+      banner.innerHTML = '<div style="display:flex; align-items:center; gap:8px;">' +
+        '<span style="display:inline-block; width:13px; height:13px; border:2px solid #D97706; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite; flex-shrink:0;"></span>' +
+        '<span>กำลังตรวจสอบข้อมูลรายการของวันที่ ' + (transDate || '') + ' จากเซิร์ฟเวอร์...</span>' +
+        '</div>';
+      banner.style.display = 'flex';
+    }
+  },
+
   loadForm: function(transDate, isForceRefresh) {
     var self = this;
     if (!App.currentUser) return;
@@ -253,6 +291,17 @@ var ChecklistModule = {
 
     // Fast Path: เรนเดอร์โครงการ, ผู้อนุมัติ, ป้ายกำกับผู้อนุมัติ และคำถามจาก Local Storage ทันที (< 0.05 วินาที)
     if (cached) {
+      self.currentData = {
+        questions: cached.questions,
+        projects: cached.projects,
+        l1Approvers: cached.approvers,
+        approveTagL1: cached.approveTagL1,
+        transDate: transDate,
+        transaction: null,
+        isEditable: true,
+        lockReason: ''
+      };
+
       if (cached.approveTagL1) {
         self.renderApproverTag_(cached.approveTagL1);
       }
@@ -268,14 +317,47 @@ var ChecklistModule = {
       }
     }
 
-    if (!cached || isForceRefresh) {
-      App.showLoading(isForceRefresh ? 'กำลังอัปเดตข้อมูลล่าสุดจากเซิร์ฟเวอร์...' : 'กำลังโหลดแบบฟอร์มตรวจสอบ...');
-    }
+    // แสดงป้ายแจ้งว่ากำลังค้นหารายการของวันนี้จากเซิร์ฟเวอร์ (Google Sheet)
+    self.showCheckingStatus_(transDate);
 
     self.answers = {};
 
+    // กรณีที่มี Cache ในเครื่องอยู่แล้ว และไม่ใช่การกดปุ่ม Force Refresh:
+    // ให้ดึงเฉพาะ Transaction ของวันนั้น (apiGetTransactionByDate) อ่านตรงจาก Google Sheet ใน ~1.5 วินาที
+    // ไม่ต้องยิง Central API เพื่อขอรายชื่อโครงการและผู้อนุมัติซ้ำซ้อน
+    if (cached && !isForceRefresh) {
+      App.callServer('apiGetTransactionByDate', App.currentUser.line_uid, transDate)
+        .then(function(res) {
+          if (res && res.success && res.data) {
+            self.applyTransactionUpdate_(res.data);
+          } else {
+            // หากยังไม่มีรายการในวันนี้ ให้แสดงสถานะสร้างใหม่พร้อมให้กรอก
+            self.renderStatusBanner_(null, true, '');
+            self.updateActionButtons_(null, true);
+            self.updateProgress_();
+          }
+          if (window.App && typeof window.App.onChecklistLoaded === 'function') {
+            window.App.onChecklistLoaded();
+          }
+        })
+        .catch(function(err) {
+          console.warn('[Checklist] Get transaction error:', err);
+          self.renderStatusBanner_(null, true, '');
+          self.updateActionButtons_(null, true);
+          self.updateProgress_();
+          if (window.App && typeof window.App.onChecklistLoaded === 'function') {
+            window.App.onChecklistLoaded();
+          }
+        });
+      return;
+    }
+
+    // กรณีไม่มี Cache ในเครื่อง (เปิดใช้งานครั้งแรก) หรือผู้ใช้กด "🔄 อัปเดตข้อมูล" (Force Refresh):
+    App.showLoading(isForceRefresh ? 'กำลังอัปเดตข้อมูลล่าสุดจากเซิร์ฟเวอร์...' : 'กำลังโหลดแบบฟอร์มตรวจสอบ...');
+
     App.callServer('apiGetChecklistForm', App.currentUser.line_uid, transDate)
       .then(function(res) {
+        self._restoreRefreshBtn();
         App.hideLoading();
         if (res && res.success && res.data) {
           self.currentData = res.data;
@@ -297,16 +379,31 @@ var ChecklistModule = {
         } else {
           var err = (res && res.error) ? res.error.message : 'ไม่สามารถโหลดฟอร์มได้';
           App.showToast(err, 'error');
+          self.renderStatusBanner_(null, true, '');
           if (cached && cached.approvers && cached.approvers.length > 0) {
             self.renderApproverDropdown_(cached.approvers);
           }
+          if (cached && cached.projects && cached.projects.length > 0) {
+            self.renderProjectDropdown_(cached.projects);
+          }
+        }
+        if (window.App && typeof window.App.onChecklistLoaded === 'function') {
+          window.App.onChecklistLoaded();
         }
       })
       .catch(function(err) {
+        self._restoreRefreshBtn();
         App.hideLoading();
         App.showToast('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + err.message, 'error');
+        self.renderStatusBanner_(null, true, '');
         if (cached && cached.approvers && cached.approvers.length > 0) {
           self.renderApproverDropdown_(cached.approvers);
+        }
+        if (cached && cached.projects && cached.projects.length > 0) {
+          self.renderProjectDropdown_(cached.projects);
+        }
+        if (window.App && typeof window.App.onChecklistLoaded === 'function') {
+          window.App.onChecklistLoaded();
         }
       });
   },
