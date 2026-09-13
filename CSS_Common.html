@@ -145,6 +145,15 @@
     border-bottom-color: var(--primary);
   }
 
+  .tab-btn:disabled, .tab-btn.tab-disabled {
+    opacity: 0.38;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    background: #F8FAFC !important;
+    color: #94A3B8 !important;
+    border-bottom-color: transparent !important;
+  }
+
   .badge-counter {
     background: var(--danger);
     color: #FFFFFF;
