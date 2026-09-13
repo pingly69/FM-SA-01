@@ -129,7 +129,9 @@ var ChecklistService = (function() {
           updates.resubmitCount = (existing.resubmitCount || 0) + 1;
         }
 
-        var updated = TransactionRepo.update(existing.transRecordId, updates);
+        // ส่ง rowIndex ที่ findByUserAndDate() หามาแล้วตรงๆ
+        // → update() ไม่ต้องสแกน Sheet ซ้ำอีกรอบ (ตัด 1 Sheet Read = ~1s)
+        var updated = TransactionRepo.update(existing.transRecordId, updates, existing.rowIndex);
         return updated;
       } else {
         // สร้าง Record ใหม่

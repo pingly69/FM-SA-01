@@ -199,8 +199,12 @@ var TransactionRepo = (function() {
 
     /**
      * อัปเดตข้อมูลรายการเดิมตาม TRANS_RECORD_ID
+     * @param {number} transRecordId
+     * @param {Object} updates
+     * @param {number} [hintRowIndex] (Optional) row index (1-indexed) จาก findByUserAndDate/findById
+     *                                ถ้าส่งมาจะข้ามการสแกน Sheet ซ้ำ (ประหยัด ~1s)
      */
-    update: function(transRecordId, updates) {
+    update: function(transRecordId, updates, hintRowIndex) {
       var lock = LockService.getScriptLock();
       try {
         lock.waitLock(10000);
@@ -209,10 +213,22 @@ var TransactionRepo = (function() {
         var targetId = Number(transRecordId);
 
         var targetRowIndex = -1;
-        for (var i = 1; i < data.length; i++) {
-          if (Number(data[i][0]) === targetId) {
-            targetRowIndex = i + 1; // 1-indexed for Sheet API
-            break;
+
+        // Fast-path: ถ้า caller ส่ง hintRowIndex มา ให้ตรวจยืนยันตรงๆ ไม่ต้องสแกนทั้งตาราง
+        if (hintRowIndex && hintRowIndex > 1 && hintRowIndex <= data.length) {
+          var hintRow = data[hintRowIndex - 1];
+          if (hintRow && Number(hintRow[0]) === targetId) {
+            targetRowIndex = hintRowIndex;
+          }
+        }
+
+        // Fallback: สแกนหาถ้า hintRowIndex ไม่ได้ส่งมา หรือ verify ไม่ผ่าน (เช่น row ถูกเลื่อน)
+        if (targetRowIndex === -1) {
+          for (var i = 1; i < data.length; i++) {
+            if (Number(data[i][0]) === targetId) {
+              targetRowIndex = i + 1; // 1-indexed for Sheet API
+              break;
+            }
           }
         }
 
